@@ -62,6 +62,44 @@ for d in "$PUB" ${SKL:+"$SKL"}; do
   esac
 done
 
+# --- no AI co-author in public history --------------------------------------
+# GitHub lists every Co-Authored-By trailer under the repo's Contributors, so
+# an AI assistant's trailer puts it there. Each clone gets a commit-msg hook
+# that rejects one, and history that already carries one stops the run.
+AI_COAUTHOR_RE='^co-authored-by:.*(claude|anthropic|openai|chatgpt|codex|copilot|gemini|cursor|devin|aider)'
+HOOK_MARK='installed by vibe-coding-pitfalls-private/tools/publish.sh'
+for d in "$PUB" ${SKL:+"$SKL"}; do
+  hook="$(cd "$d" && git rev-parse --absolute-git-dir)/hooks/commit-msg"
+  if [ -e "$hook" ] && ! grep -q "$HOOK_MARK" "$hook"; then
+    echo "WARNING: $hook exists and is not ours -- AI co-author check NOT installed there"
+  else
+    mkdir -p "$(dirname "$hook")"
+    cat > "$hook" <<HOOK
+#!/bin/sh
+# commit-msg -- $HOOK_MARK
+# Public repo: GitHub would list an AI co-author under Contributors.
+if grep -qiE '$AI_COAUTHOR_RE' "\$1"; then
+  echo "commit-msg: drop the AI Co-Authored-By trailer -- this is a public repo (see conventions.md)" >&2
+  exit 1
+fi
+HOOK
+    chmod +x "$hook"
+  fi
+  n=$(git -C "$d" log --format=%B 2>/dev/null | grep -ciE "$AI_COAUTHOR_RE")
+  if [ "$n" -gt 0 ]; then
+    echo "$d: $n commit(s) in its history carry an AI co-author trailer. Nothing written."
+    echo "Rewrite them (human co-authors are kept), then force-push -- allowed for this case:"
+    sed "s|CLONE|$d|g" <<'FIX'
+  cd CLONE && b=$(git symbolic-ref --short HEAD)
+  git branch -f backup-before-trailer-strip HEAD
+  FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch -f --msg-filter \
+    "perl -0pe 's/^co-authored-by:.*(?:claude|anthropic|openai|chatgpt|codex|copilot|gemini|cursor|devin|aider)[^\n]*\n?//gmi; s/\n+\z/\n/'" -- "$b"
+  git push --force-with-lease="$b:$(git rev-parse backup-before-trailer-strip)" origin "$b"
+FIX
+    exit 1
+  fi
+done
+
 git fetch -q origin || { echo "git fetch failed" >&2; exit 2; }
 echo "exporting $REF = $(git rev-parse --short "$REF")"
 

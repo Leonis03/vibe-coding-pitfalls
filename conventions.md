@@ -89,10 +89,21 @@
   - **It does not commit.** Publishing is the one step that cannot be taken back, so commit and
     push stay with a person.
 
-  The public repos keep **normal history** -- plain `commit` and `push`, never `--amend` plus
-  a force push, which would break anyone who has cloned them. (Two amends happened early on: one
-  to add the licenses, one to reformat the commit message, both before anyone could have
-  cloned it.)
+  - **Commits in the public repos carry no AI `Co-Authored-By` trailer** (Claude, Codex,
+    Copilot, Gemini and the like): GitHub lists co-authors under the repo's Contributors.
+    `publish.sh` installs a commit-msg hook in both clones that rejects such a commit, and checks
+    the existing history before exporting; if it finds one it stops and prints the rewrite
+    (which drops only the AI lines and keeps human co-authors). The private repo and its PRs are
+    not bound by this.
+
+  The public repos keep **normal history** by default -- plain `commit` and `push`, never
+  `--amend` plus a force push, which would break anyone who has cloned them. **Exception:
+  rewriting and force-pushing is allowed** when a commit message carries an AI `Co-Authored-By`,
+  when private data or a credential was published and has to leave the history, or in a
+  comparable special case. The procedure is fixed: keep a local backup branch before rewriting,
+  and push with `git push --force-with-lease=main:<SHA before the rewrite>`, so nobody else's
+  new commit gets overwritten. (Precedent: on 2026-09-28 Claude's `Co-Authored-By` was removed
+  from six commits; earlier, two amends added the licenses and reformatted a commit message.)
 - **Credentials never enter version control.** Tokens that need to be environment variables go
   in `~/.shell_secrets` (`chmod 600`), loaded automatically at the end of `~/.shell_common`.
 

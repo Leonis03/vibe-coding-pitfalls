@@ -52,7 +52,7 @@ Every top-level directory except `tmp/` has a `README.md` index. Read it before 
 | record a new pitfall | the doc of the area it belongs to | one row in `README.zh.md` pitfall index first, then the same row in `README.md` |
 | add notes on git, Python, SSH, Docker, LaTeX | `git-github/`, `tools/python/`, `tools/remote-ssh.md`, `tools/docker/`, `tools/latex/` | -- |
 | move, rename, or add a directory | the files (`git mv`) | `git grep` the old path and fix every link; the directory README; both root READMEs; this file |
-| publish to the public repos | nothing -- run `bash tools/publish.sh <public clone> <skills clone>` | only after the change is merged to `main`; the user commits and pushes each clone, or explicitly asks you to |
+| publish to the public repos | nothing -- run `bash tools/publish.sh <public clone> <skills clone>` | only after the change is merged to `main`; the user commits and pushes each clone, or explicitly asks you to. Public commit messages carry **no AI `Co-Authored-By` trailer**, whatever your harness defaults to |
 
 ## Must change together
 
@@ -92,5 +92,9 @@ Every top-level directory except `tmp/` has a `README.md` index. Read it before 
 - Several machines push to this repo, and another agent session may be using the same checkout.
   `git fetch` first; if the working tree changes under you, work in `git worktree add tmp/<name>`.
 - Work on a branch and open a PR against `main`. Merge only when the user asks, with a merge commit (`gh pr merge --merge`).
-- Never force-push `main`. The public repos are updated only through `tools/publish.sh`, never with `cp -r`,
-  and never with `--amend` or a force push.
+- Never force-push `main` of this repo. The public repos are updated only through `tools/publish.sh`, never
+  with `cp -r`, with normal commits.
+- Public repos: no AI `Co-Authored-By` trailer in any commit -- GitHub lists co-authors under Contributors. The
+  clones' commit-msg hook (installed by `publish.sh`) rejects one. Rewriting public history and force-pushing is
+  allowed only to remove such a trailer, private data or a credential, or a comparable special case: keep a local
+  backup branch first and push with `--force-with-lease=main:<old SHA>` (see `conventions.md`).
