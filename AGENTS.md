@@ -30,7 +30,7 @@ tracked must be publishable.
 | `agent/claude-code/` | `settings.json`, `claude-global.md`, `statusline-command.sh` | `~/.claude/` (`claude-global.md` -> `~/.claude/CLAUDE.md`) |
 | `agent/antigravity/` | `agents-brave-uv.md` + agy notes | `~/.gemini/config/AGENTS.md` |
 | `agent/brave-search/` | bx CLI and Brave MCP notes | -- |
-| `agent/skills/<name>/` | one skill each; install matrix in `agent/skills/README.md` | `~/.claude/skills/`, `~/.gemini/config/skills/` -- **only** via `tools/sync-skills.sh`; also published as `skills/<name>/` in the skills repo |
+| `agent/skills/<name>/` | one skill each; install matrix in `agent/skills/README.md` | `~/.claude/skills/`, `~/.gemini/config/skills/`, `~/.agents/skills/` -- **only** via `tools/sync-skills.sh`; also published as `skills/<name>/` in the skills repo |
 | `git-github/` | git/gh setup, history email scrub runbook | -- |
 | `tools/` | repo scripts `privacy-gate.sh`, `sync-skills.sh`, `publish.sh`; notes `python/`, `remote-ssh.md`, `docker/`, `latex/` | -- |
 | `tmp/` | scratch area, gitignored | never committed |
@@ -57,14 +57,19 @@ Every top-level directory except `tmp/` has a `README.md` index. Read it before 
 ## Must change together
 
 - `README.zh.md` <-> `README.md`, `conventions.zh.md` <-> `conventions.md`, `redaction.zh.md` <-> `redaction.md`. Chinese first.
-- `SKILL.md` <-> `SKILL.zh.md` in `antigravity-cli`, `docx-to-md`, `pdf-to-md`, `wsl-cjk-font`; `TROUBLESHOOTING.md` <-> `TROUBLESHOOTING.zh.md` in `antigravity-cli`. The harness loads the English file.
-- A new skill -> a row in the install matrix in `agent/skills/README.md`.
+- `SKILL.md` <-> `SKILL.zh.md` in `antigravity-cli`, `docx-to-md`, `pdf-to-md`, `linux-cjk-font`; `TROUBLESHOOTING.md` <-> `TROUBLESHOOTING.zh.md` in `antigravity-cli`. The harness loads the English file.
+- A new skill -> a row in both tables in `agent/skills/README.md`: the platform table (`if` / `only if`
+  Windows / WSL / Linux / Android) and the per-machine install matrix. Install it with `mkdir` plus
+  `sync-skills.sh deploy <name>`, never `cp`.
 - A layout change, a new deploy target, or a new pair above -> this file, in the same commit.
 - Repo original <-> live copy: editing the repo does not deploy. Deploy (cp, or `sync-skills.sh deploy`) only when the user asks, and back up the live file into `tmp/` first.
 
 ## Rules that fail silently when broken
 
 - **ASCII only** in file and directory names, config files (comments included), skill YAML frontmatter, and this file.
+- A skill calls its own scripts as `~/.agents/skills/<name>/scripts/...`, never a harness-specific directory,
+  with a "Paths" note at the first use saying `~/.claude/skills/`, `~/.gemini/config/skills/` or a path relative
+  to the SKILL.md work as well. Only Claude Code hook config keeps `~/.claude/skills/`.
 - An unquoted skill `description` must not contain `: ` or ` #` (write ` -- `): Claude Code loads it anyway, strict parsers such as `npx skills` drop the skill silently.
 - Markdown filenames are lowercase kebab-case; point-in-time records end in `-YYYYMMDD`.
 - **No `AGENTS.md` or `CLAUDE.md` below the root**: harnesses load them as instructions. Originals get other names (see Map).

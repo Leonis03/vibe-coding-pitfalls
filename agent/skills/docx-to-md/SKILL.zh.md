@@ -20,12 +20,15 @@ arguments: [docx_file]
 ## 1. 基于 `uv` 的一键快速执行
 
 ### 1.1 直接执行 Docx 转 Markdown
+
+> **路径**：下面的命令统一写 `~/.agents/skills/docx-to-md/`。装在别处也能用，换成实际位置即可：`~/.claude/skills/docx-to-md/`、`~/.gemini/config/skills/docx-to-md/`，或相对本 SKILL.md 的路径，三处有一处存在就行。
+
 ```bash
 # 基础转换（默认输出图片至相对目录 figures_<docname>/）
-PYTHONUNBUFFERED=1 uv run --python 3.12 --with python-docx python $HOME/.gemini/config/skills/docx-to-md/scripts/convert_docx_to_md.py input.docx output.md
+PYTHONUNBUFFERED=1 uv run --python 3.12 --with python-docx python $HOME/.agents/skills/docx-to-md/scripts/convert_docx_to_md.py input.docx output.md
 
 # 注入 LaTeX 公式映射字典与自定义图片说明
-PYTHONUNBUFFERED=1 uv run --python 3.12 --with python-docx python $HOME/.gemini/config/skills/docx-to-md/scripts/convert_docx_to_md.py input.docx output.md \
+PYTHONUNBUFFERED=1 uv run --python 3.12 --with python-docx python $HOME/.agents/skills/docx-to-md/scripts/convert_docx_to_md.py input.docx output.md \
     --media-dir figures \
     --formula-map formula_map.json \
     --image-alts image_alts.json
@@ -34,7 +37,7 @@ PYTHONUNBUFFERED=1 uv run --python 3.12 --with python-docx python $HOME/.gemini/
 ### 1.2 高清公式切片提取（用于多模态视觉比对与 AI 纠错）
 一键生成 300 DPI 超清公式页面图及自动裁剪的单公式小图（如 `eq_5.1-1.png`），供多模态 AI 审阅纠错：
 ```bash
-PYTHONUNBUFFERED=1 uv run --python 3.12 --with pymupdf python $HOME/.gemini/config/skills/docx-to-md/scripts/extract_formula_images.py input.docx --out-dir pdf_formula_pages
+PYTHONUNBUFFERED=1 uv run --python 3.12 --with pymupdf python $HOME/.agents/skills/docx-to-md/scripts/extract_formula_images.py input.docx --out-dir pdf_formula_pages
 ```
 
 ---

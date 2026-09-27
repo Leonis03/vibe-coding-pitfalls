@@ -170,7 +170,7 @@ npx skills add Leonis03/vibe-coding-pitfalls-skills --skill <name> -g --copy    
 \`\`\`
 
 \`--copy\` copies the files into the agent directories instead of symlinking them. Copying by hand
-also works: \`skills/<name>/\` goes to \`~/.claude/skills/<name>/\` or
+also works: \`skills/<name>/\` goes to \`~/.agents/skills/<name>/\`, \`~/.claude/skills/<name>/\` or
 \`~/.gemini/config/skills/<name>/\`.
 
 **Placeholders.** The skills are redacted. Values in angle brackets (\`<your-home>\`,

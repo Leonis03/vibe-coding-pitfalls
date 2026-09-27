@@ -1,7 +1,7 @@
 ---
 name: antigravity-cli
 description: 通过最小权限包装脚本 agy-run.sh，把一次性问答、本地图片、或某个目录内的任务委派给 Google Antigravity CLI（agy，Gemini 3.x）——始终在沙箱内、默认只读，写入与命令权限只能由用户亲自授予。用户要求用 Antigravity / agy / Gemini 问答、要第二意见、识图 / OCR、或在某个目录里干活时触发。你自己能看的图（除非用户点名要 Gemini）、或需要 shell 命令联网的任务，不触发。
-allowed-tools: Bash(bash ~/.claude/skills/antigravity-cli/scripts/agy-run.sh *)
+allowed-tools: Bash(bash ~/.agents/skills/antigravity-cli/scripts/agy-run.sh *), Bash(bash ~/.claude/skills/antigravity-cli/scripts/agy-run.sh *), Bash(bash ~/.gemini/config/skills/antigravity-cli/scripts/agy-run.sh *)
 ---
 
 # Antigravity CLI（agy）—— agent 以最小权限调用
@@ -16,11 +16,13 @@ Claude Code 钩子 `scripts/agy-guard.sh` 会拦下这三件事，bypassPermissi
 
 ## 调用
 
+> **路径**：下面的命令统一写 `~/.agents/skills/antigravity-cli/`。装在别处也能用，换成实际位置即可：`~/.claude/skills/antigravity-cli/`、`~/.gemini/config/skills/antigravity-cli/`，或相对本 SKILL.md 的路径，三处有一处存在就行。
+
 ```bash
-bash ~/.claude/skills/antigravity-cli/scripts/agy-run.sh "question"
-bash ~/.claude/skills/antigravity-cli/scripts/agy-run.sh --image /abs/shot.png "Transcribe all text exactly"
-bash ~/.claude/skills/antigravity-cli/scripts/agy-run.sh --dir /abs/project "Summarize README.md"
-printf '%s' "$long_prompt" | bash ~/.claude/skills/antigravity-cli/scripts/agy-run.sh -
+bash ~/.agents/skills/antigravity-cli/scripts/agy-run.sh "question"
+bash ~/.agents/skills/antigravity-cli/scripts/agy-run.sh --image /abs/shot.png "Transcribe all text exactly"
+bash ~/.agents/skills/antigravity-cli/scripts/agy-run.sh --dir /abs/project "Summarize README.md"
+printf '%s' "$long_prompt" | bash ~/.agents/skills/antigravity-cli/scripts/agy-run.sh -
 ```
 
 | 调用 | 工作区 | agy 能读 | agy 能写 |
@@ -55,7 +57,7 @@ stdout 是 agy 的回答；stderr 是诊断信息，最后一行固定为
 2. 用 AskUserQuestion 问用户：具体规则（`write_file(/abs/dir)` 或 `command(prefix)`）、
    agy 为什么需要、以及它会**一直生效**到被撤销为止（对之后所有 agy 调用）。
 3. 用户同意后，由**用户本人**输入：
-   `! bash ~/.claude/skills/antigravity-cli/scripts/agy-run.sh grant write /abs/dir`
+   `! bash ~/.agents/skills/antigravity-cli/scripts/agy-run.sh grant write /abs/dir`
    或 `... grant command 'uv run'`。你自己不要跑 `grant`，钩子会拦。
 4. 重跑。`revoke write|command ...` 与 `grants` 你可以自己跑。
 
@@ -99,7 +101,7 @@ stdout 是 agy 的回答；stderr 是诊断信息，最后一行固定为
      }]
    }
    ```
-4. 自检：`bash ~/.claude/skills/antigravity-cli/scripts/agy-run.sh grants` 会对通配规则或缺少
+4. 自检：`bash ~/.agents/skills/antigravity-cli/scripts/agy-run.sh grants` 会对通配规则或缺少
    `/tmp` deny 发出警告。
 
 出问题了？诊断信息、代理、登录与裸 agy 的行为：**[TROUBLESHOOTING.zh.md](TROUBLESHOOTING.zh.md)**

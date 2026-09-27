@@ -28,7 +28,10 @@ TOOL=$(printf '%s' "$INPUT" | jq -r '.tool_name // empty' 2>/dev/null) || exit 0
 
 AGY_SETTINGS="$HOME/.gemini/antigravity-cli/settings.json"
 AGY_PROJECTS="$HOME/.gemini/config/projects"
-RUNNER="bash ~/.claude/skills/antigravity-cli/scripts/agy-run.sh"
+# Suggest the runner that sits next to this guard -- the skill may be installed
+# under ~/.agents/skills, ~/.claude/skills or ~/.gemini/config/skills.
+SELF_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+RUNNER="bash ${SELF_DIR/#$HOME/\~}/agy-run.sh"
 
 deny() {
     jq -n --arg r "agy-guard: $1" \

@@ -7,7 +7,7 @@
 | 文件 | 作用 |
 | :--- | :--- |
 | [`privacy-gate.sh`](privacy-gate.sh) | 提交 / 发布前的脱敏门禁。`bash tools/privacy-gate.sh`，退出码 0 = 已知形态都没命中（不等于安全） |
-| [`sync-skills.sh`](sync-skills.sh) | skill 的渲染式部署与核对。不带参数 = 只读核对；`deploy [name]` = 展开占位符后写入 `~/.claude/skills/` 与 `~/.gemini/config/skills/` |
+| [`sync-skills.sh`](sync-skills.sh) | skill 的渲染式部署与核对。不带参数 = 只读核对；`deploy [name]` = 展开占位符后写入 `~/.claude/skills/`、`~/.gemini/config/skills/`、`~/.agents/skills/` 里已装的 skill |
 | [`publish.sh`](publish.sh) | 把 `origin/main` 导出到两个公开仓库的本地 clone（整棵树、只含 skill 的那份），写入前先跑门禁；不提交、不推送 |
 
 两个脚本各读一个**不进版本库**的本机文件，每台机器单独准备：

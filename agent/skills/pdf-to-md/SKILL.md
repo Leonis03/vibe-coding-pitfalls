@@ -21,12 +21,15 @@ This skill provides an **automated layout-reconstruction engine + Visual Formula
 ## 1. Fast Execution via `uv`
 
 ### 1.1 Direct PDF to Markdown Conversion
+
+> **Paths.** Commands below use `~/.agents/skills/pdf-to-md/`. Any installed copy works: use `~/.claude/skills/pdf-to-md/`, `~/.gemini/config/skills/pdf-to-md/`, or a path relative to this SKILL.md instead -- only one of the three needs to exist.
+
 ```bash
 # Basic conversion (auto-extracts to "figures_<basename>/")
-PYTHONUNBUFFERED=1 uv run --python 3.12 --with pymupdf python $HOME/.gemini/config/skills/pdf-to-md/scripts/convert_pdf_to_md.py input.pdf output.md
+PYTHONUNBUFFERED=1 uv run --python 3.12 --with pymupdf python $HOME/.agents/skills/pdf-to-md/scripts/convert_pdf_to_md.py input.pdf output.md
 
 # Conversion with external LaTeX formula mapping and inline symbol dictionary
-PYTHONUNBUFFERED=1 uv run --python 3.12 --with pymupdf python $HOME/.gemini/config/skills/pdf-to-md/scripts/convert_pdf_to_md.py input.pdf output.md \
+PYTHONUNBUFFERED=1 uv run --python 3.12 --with pymupdf python $HOME/.agents/skills/pdf-to-md/scripts/convert_pdf_to_md.py input.pdf output.md \
     --figures-dir figures \
     --formula-map formula_map.json \
     --inline-map inline_map.json
@@ -35,7 +38,7 @@ PYTHONUNBUFFERED=1 uv run --python 3.12 --with pymupdf python $HOME/.gemini/conf
 ### 1.2 High-Res Formula Image & Vector Figure Extraction
 Extract 300 DPI full-page formula images, auto-crop individual numbered equation bounding boxes (`crops/eq_5.1-1.png`), crop vector figures (`vector_figures/`), and auto-generate `formula_map.template.json`:
 ```bash
-PYTHONUNBUFFERED=1 uv run --python 3.12 --with pymupdf python $HOME/.gemini/config/skills/pdf-to-md/scripts/extract_pdf_formula_crops.py input.pdf --out-dir pdf_formula_pages
+PYTHONUNBUFFERED=1 uv run --python 3.12 --with pymupdf python $HOME/.agents/skills/pdf-to-md/scripts/extract_pdf_formula_crops.py input.pdf --out-dir pdf_formula_pages
 ```
 
 ---

@@ -45,7 +45,7 @@
   systems and operating systems, and symlinks do not survive that.
 - **Sync skills with `bash tools/sync-skills.sh`, not a bare `cp` either.** The repo says
   `<your-home>`, `CourseName` and similar placeholders; the script expands them to real values
-  when writing `~/.claude/skills/` and `~/.gemini/config/skills/`, and compares the
+  when writing `~/.claude/skills/`, `~/.gemini/config/skills/` or `~/.agents/skills/`, and compares the
   **substituted** bytes when verifying -- so "the hashes match" means "repo == deployed copy,
   modulo redaction". Running it with no arguments is a read-only check. How to write a home
   directory depends on **whether a shell will expand it**: if it will, write `$HOME` (a

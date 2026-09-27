@@ -132,7 +132,7 @@ git config --get-urlmatch credential.helper https://github.com
 # -> !/usr/bin/gh auth git-credential
 ```
 
-A pull updates the source tree, not whatever was deployed from it. Skills in this repo live in `~/.claude/skills` and `~/.gemini/config/skills`, so the sync ends with `bash tools/sync-skills.sh deploy`, not with the fast-forward -- `tools/.sync-map` is gitignored and already present per machine. `/mnt/wsl` gives direct file access to another clone, but it does not fetch GitHub versions and a `git -C /mnt/wsl/<distro>/...` command would use the calling distro's Git environment.
+A pull updates the source tree, not whatever was deployed from it. Skills in this repo live in `~/.claude/skills`, `~/.gemini/config/skills` and `~/.agents/skills`, so the sync ends with `bash tools/sync-skills.sh deploy`, not with the fast-forward -- `tools/.sync-map` is gitignored and already present per machine. `/mnt/wsl` gives direct file access to another clone, but it does not fetch GitHub versions and a `git -C /mnt/wsl/<distro>/...` command would use the calling distro's Git environment.
 
 ### Files in Another Distro
 ```bash

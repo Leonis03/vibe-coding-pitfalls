@@ -1,6 +1,6 @@
 # Skills
 
-18 个 skill，同时供 Claude Code（`~/.claude/skills/`）与 Antigravity（`~/.gemini/config/skills/`）使用。
+18 个 skill，同时供 Claude Code（`~/.claude/skills/`）与 Antigravity（`~/.gemini/config/skills/`）使用，也可以装在 `~/.agents/skills/`。
 两边装的集合不同（见下表），但凡是两边都有的，内容保持一致。
 
 ## 部署与核对：不能直接 cp
@@ -29,7 +29,7 @@ bash ../../tools/sync-skills.sh deploy bx  # 只处理一个
 
 | 情况 | 写什么 | 例子 |
 | :--- | :--- | :--- |
-| 会被 shell 展开（命令行、脚本、`uv run ...` 的参数、双引号里的 prompt） | `$HOME` | `uv run --python 3.12 python $HOME/.gemini/config/skills/pdf-to-md/scripts/x.py` |
+| 会被 shell 展开（命令行、脚本、`uv run ...` 的参数、双引号里的 prompt） | `$HOME` | `uv run --python 3.12 python $HOME/.agents/skills/pdf-to-md/scripts/x.py` |
 | 展不开，必须是字面路径（JSON、Python 字符串、配置文件的值） | `<your-home>` | `"trustedWorkspaces": ["<your-home>"]` |
 
 所以 `$HOME` **不是**占位符，是原样发布的运行时变量；`<your-home>` 才是，全仓库只剩
@@ -53,7 +53,7 @@ bash ../../tools/sync-skills.sh deploy bx  # 只处理一个
 | Linux 家目录（shell） | `$HOME`，原样写进文档即可 |
 | **Windows 账户目录**（WSL 里） | WSL 中**没有** `%USERPROFILE%` 这个环境变量。用通配符：`glob.glob("/mnt/c/Users/*/AppData/Local/Microsoft/Windows/Fonts/*.ttf")`；需要确切的用户名时 `wslpath -u "$(cmd.exe /c 'echo %USERPROFILE%' 2>/dev/null \| tr -d '\r')"` |
 
-`wsl-cjk-font` 是这条规则的现成案例，也是个真实事故：它的 `scripts/cjk_font.py` 一直用
+`linux-cjk-font` 是这条规则的现成案例，也是个真实事故：它的 `scripts/cjk_font.py` 一直用
 `glob.glob("/mnt/c/Users/*/...")` 做得很对，但 `SKILL.md` 里给 agent 照抄的代码片段却把账户名
 写死成了另一台机器的值。那个目录在本机不存在，于是 matplotlib 静默回退 DejaVu Sans，出一版
 豆腐块**且不抛异常**——正是这个 skill 自己写着要防的失败模式。两处现在都用通配符，
@@ -68,20 +68,66 @@ bash ../../tools/sync-skills.sh deploy bx  # 只处理一个
 那边的 README 按各 skill 的 frontmatter 自动生成——所以 `description` 的第一句要能单独读懂。
 导出的是脱敏后的仓库原样，占位符不渲染。
 
+## 能在哪用：if / only if
+
+- **only if X**：离开 X 就用不了，别的平台不要装。
+- **if X / Y**：在列出的平台上能用，不代表别处一定不行。**Windows 一栏没打勾**，是因为命令和脚本都按
+  bash 写，没在原生 PowerShell 下验证过，不是确认过不能用。
+
+「Windows」指原生 Windows（PowerShell）；「WSL」是 Windows 上的 WSL2 发行版；「Linux」是原生 Linux，
+含租来的 GPU 机；「Android」指 root 后的 Termux，或荣耀平板的 Linux 实验室。
+
+| skill | Windows | WSL | Linux | Android | 条件 | 依据 |
+| :--- | :---: | :---: | :---: | :---: | :--- | :--- |
+| `wsl-windows-command` | | ✅ | | | **only if** WSL | 全靠 WSL interop：`/mnt/c`、`.exe`、`wsl.exe` |
+| `compress-wsl-space` | ✅ | | | | **only if** Windows（装了 WSL2） | 在管理员 PowerShell 里跑 `Optimize-VHD`；WSL 里只做 `fstrim` |
+| `android-chroot-debian` | | | | ✅ | **only if** Android（root + Termux） | 在 Termux 的 root chroot 里运行，依赖 Android 的挂载点与 `unshare` |
+| `termux-debian-external-drive` | | | | ✅ | **only if** Android（root + Termux） | vold、`/mnt/media_rw`、`nsenter -t 1` |
+| `honor-linuxlab` | | ✅ | ✅ | ✅ | **only if** 手边有荣耀平板 | 目标是平板里的 PRoot 容器；命令从电脑端用 `adb shell` 注入 |
+| `video-to-md` | ✅ | ✅ | ✅ | | **only if** Antigravity | 视频靠 agy 的 `view_file` 读；Claude Code 没有等价工具，所以只装 `.gemini` |
+| `linux-cjk-font` | | ✅ | ✅ | | **if** WSL / Linux | WSL 先找 `/mnt/c/Users/*/.../Fonts`；Linux 退回 `/usr/share/fonts`，要装 `fonts-noto-cjk` 或文泉驿 |
+| `antigravity-cli` | | ✅ | ✅ | | **if** WSL / Linux（需装 agy） | 包装脚本是 bash；在 WSL 上实测（agy 1.2.11），Linux 上 agy 是原生二进制 |
+| `bx` | | ✅ | ✅ | | **if** WSL / Linux | 配方是 bash + `jq`，需要 `bx` CLI |
+| `deepln-setup` | | ✅ | ✅ | | **if** WSL / Linux（本地端） | 本地改 `~/.ssh/config`、跑 bash 脚本；远端是租来的 Linux GPU 机 |
+| `gpu-cuda-checks` | | ✅ | ✅ | | **if** WSL / Linux（本地端） | 经 ssh 在远端 Linux GPU 机上检查 |
+| `docx-to-md` · `pdf-to-md` | | ✅ | ✅ | | **if** WSL / Linux | `uv run` 跑 Python 脚本 |
+| `download-bilibili` | | ✅ | ✅ | | **if** WSL / Linux | BBDown + ffmpeg，命令按 bash 写 |
+| `inspect-session` · `trim-branch` | | ✅ | ✅ | | **if** WSL / Linux | 读 `~/.claude/projects` 下的会话 JSONL，Python 脚本 |
+| `shuorenhua` | ✅ | ✅ | ✅ | ✅ | 任意平台 | 纯文字编辑，不跑命令 |
+| `find-skills` | ✅ | ✅ | ✅ | ✅ | 任意平台（需 Node） | 只调用 `npx skills` |
+
 ## 装在哪
 
-| skill | `.claude` | `.gemini` |
-| :--- | :---: | :---: |
-| `android-chroot-debian` · `antigravity-cli` · `bx` · `deepln-setup` · `find-skills` · `gpu-cuda-checks` · `honor-linuxlab` · `inspect-session` · `shuorenhua` · `termux-debian-external-drive` · `trim-branch` · `wsl-windows-command` | ✅ | ✅ |
-| `docx-to-md` · `download-bilibili` · `pdf-to-md` · `video-to-md` · `wsl-cjk-font` | — | ✅ |
-| `compress-wsl-space` | — | — |
+按机器记。一台机器装哪些 skill，先按上表排除用不了的，再按工具分工排除用不上的。
+
+| skill | WSL 机 `.claude` | WSL 机 `.gemini` | Linux 桌面 `.claude` | Linux 桌面 `.gemini` |
+| :--- | :---: | :---: | :---: | :---: |
+| `antigravity-cli` · `bx` · `deepln-setup` · `find-skills` · `gpu-cuda-checks` · `honor-linuxlab` · `inspect-session` · `shuorenhua` · `trim-branch` | ✅ | ✅ | ✅ | ✅ |
+| `docx-to-md` · `download-bilibili` · `pdf-to-md` | — | ✅ | ✅ | ✅ |
+| `video-to-md` | — | ✅ | — | ✅ |
+| `android-chroot-debian` · `termux-debian-external-drive` · `wsl-windows-command` | ✅ | ✅ | — | — |
+| `linux-cjk-font` | — | ✅ | — | — |
+| `compress-wsl-space` | — | — | — | — |
+
+- Linux 桌面两栏是 2026-09-28 按上面的规则装的：Android、WSL 专属的都不装；`linux-cjk-font`（原名
+  `wsl-cjk-font`）在原生 Linux 上也能用，但这台机器用不上，没装；`video-to-md` 不进 `.claude`，因为读视频靠的是 agy 的 `view_file`。
+- WSL 机两栏是此前的记录，那台机器上的实际安装以它自己的 `sync-skills.sh` 核对结果为准。
+- Linux 桌面两边还各有一个仓库里没有的 `local-torch-cuda`（本机 GPU 专用），`sync-skills.sh` 不管它。
 
 `antigravity-cli` 在 Claude Code 侧不止是 skill 目录：它的 `scripts/agy-guard.sh` 挂在
 `~/.claude/settings.json` 的 PreToolUse 钩子上（见 [`../claude-code/`](../claude-code/)），
 负责拦下裸 `agy -p` 与 agent 自行 `grant`。只装 skill 不配钩子，同意闸门就只剩文档约束。
 
-新装一个 skill 是**手动动作**（两边集合本就不同，脚本不会替你决定）；装好之后由
-`sync-skills.sh` 维持一致。安装一律 `cp`，不要 `ln -s`——见 [`../../conventions.zh.md`](../../conventions.zh.md)。
+**新装一个 skill 是手动动作**（各台机器、两个 harness 的集合本就不同，脚本不会替你决定）：
+先建空目录，再让脚本渲染写入。**不要直接 `cp`**，那会把 `<your-home>` 这类占位符原样拷过去。
+
+```bash
+mkdir ~/.claude/skills/<name>        # 或 ~/.gemini/config/skills/<name>、~/.agents/skills/<name>
+bash ../../tools/sync-skills.sh deploy <name>
+```
+
+卸载就是删掉部署位里那个目录（先备份到 `tmp/`）。之后由 `sync-skills.sh` 维持一致。
+不要 `ln -s`，见 [`../../conventions.zh.md`](../../conventions.zh.md)。
 
 ## 约定
 
@@ -91,3 +137,8 @@ bash ../../tools/sync-skills.sh deploy bx  # 只处理一个
   这在 YAML 里不合法：Claude Code 的加载器能容忍，照样加载；但 `npx skills` 这类严格解析器会**不报错地跳过整个 skill**。
   `deepln-setup`、`gpu-cuda-checks` 就是这样在公开 skill 仓库里消失的。`tools/publish.sh` 导出前会检查这一条。
 - 带 `SKILL.zh.md` 的 skill，中文版是对照副本，**不被 harness 加载**，以英文主版为准。
+- **skill 里调用自身脚本的路径统一写 `~/.agents/skills/<name>/...`**，并在第一处用到的地方加一条「路径」说明：
+  装在 `~/.claude/skills/`、`~/.gemini/config/skills/` 也行，用相对本 SKILL.md 的路径也行，三处有一处存在就能执行。
+  不要写死某个 harness 的目录。以前 `docx-to-md`、`pdf-to-md` 写的是 `.gemini`，只装 `.claude` 的机器就找不到脚本。
+  例外是 Claude Code 的钩子配置（`~/.claude/settings.json` 里的 `agy-guard.sh`）：它只在 Claude Code 下运行，
+  照旧写 `~/.claude/skills/`；`agy-guard.sh` 提示用户运行的命令，按它自己所在的目录推算。

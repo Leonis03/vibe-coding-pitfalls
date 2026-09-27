@@ -1,5 +1,5 @@
 ---
-name: wsl-cjk-font
+name: linux-cjk-font
 description: 在 WSL 和 Linux 环境下使用 Python（Matplotlib、Seaborn、Pillow、OpenCV）配置和打印出版级中文字体与 Unicode 制表符对齐图片。自动探测 Windows 宿主机字体、用户字体（更纱黑体/微软雅黑）与 Linux 原生中文字体包，确保零 Glyph 警告与严格 2:1 等宽对齐。
 allowed-tools: Bash Read
 argument-hint: "[smoke-test | table | custom-plot]"
@@ -22,19 +22,22 @@ argument-hint: "[smoke-test | table | custom-plot]"
 
 ### 1.1 一键运行 CJK 字体冒烟测试（零警告验证）
 快速验证当前 WSL 环境的 Matplotlib 中文、负号、LaTeX 混排以及 Pillow 制表符渲染：
+
+> **路径**：下面的命令统一写 `~/.agents/skills/linux-cjk-font/`。装在别处也能用，换成实际位置即可：`~/.claude/skills/linux-cjk-font/`、`~/.gemini/config/skills/linux-cjk-font/`，或相对本 SKILL.md 的路径，三处有一处存在就行。
+
 ```bash
-uv run --with matplotlib --with pillow --with numpy python $HOME/.gemini/config/skills/wsl-cjk-font/scripts/smoke_test.py
+uv run --with matplotlib --with pillow --with numpy python $HOME/.agents/skills/linux-cjk-font/scripts/smoke_test.py
 ```
 
 ### 1.2 将文本表格/代码直接转为高清图片
 将任意格式化文本、ASCII 制表符或终端输出渲染为精美 PNG 图片：
 ```bash
 # 从文件渲染
-uv run --with pillow python $HOME/.gemini/config/skills/wsl-cjk-font/scripts/table_to_image.py input.txt output.png --title "实验对比结果"
+uv run --with pillow python $HOME/.agents/skills/linux-cjk-font/scripts/table_to_image.py input.txt output.png --title "实验对比结果"
 
 # 从管道标准输入渲染
 echo -e "┌──────┬──────────┐\n│ 算法 │ 准确率   │\n├──────┼──────────┤\n│ YOLO │ 98.5%    │\n└──────┴──────────┘" | \
-uv run --with pillow python $HOME/.gemini/config/skills/wsl-cjk-font/scripts/table_to_image.py - output.png
+uv run --with pillow python $HOME/.agents/skills/linux-cjk-font/scripts/table_to_image.py - output.png
 ```
 
 ---

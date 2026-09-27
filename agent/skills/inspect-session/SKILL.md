@@ -15,27 +15,29 @@ description: Inspect, audit, and analyze coding agent conversation transcripts (
 
 所有命令均使用系统规范的 Python 运行时执行：
 
+> **路径**：下面的命令统一写 `~/.agents/skills/inspect-session/`。装在别处也能用，换成实际位置即可：`~/.claude/skills/inspect-session/`、`~/.gemini/config/skills/inspect-session/`，或相对本 SKILL.md 的路径，三处有一处存在就行。
+
 ```bash
 # 1. 会话总览（统计、角色轮次、工具调用分布、分支拓扑）
-PYTHONUNBUFFERED=1 uv run --python 3.10 python ~/.gemini/config/skills/inspect-session/scripts/inspect.py <JSONL_PATH>
+PYTHONUNBUFFERED=1 uv run --python 3.10 python ~/.agents/skills/inspect-session/scripts/inspect.py <JSONL_PATH>
 
 # 2. 文件变更与 Git 变更审计（核心：回答会话修改了什么）
-PYTHONUNBUFFERED=1 uv run --python 3.10 python ~/.gemini/config/skills/inspect-session/scripts/inspect.py <JSONL_PATH> --changes
+PYTHONUNBUFFERED=1 uv run --python 3.10 python ~/.agents/skills/inspect-session/scripts/inspect.py <JSONL_PATH> --changes
 
 # 3. 详细 Git 操作审计（查看所有 git commit, push, diff, status）
-PYTHONUNBUFFERED=1 uv run --python 3.10 python ~/.gemini/config/skills/inspect-session/scripts/inspect.py <JSONL_PATH> --git
+PYTHONUNBUFFERED=1 uv run --python 3.10 python ~/.agents/skills/inspect-session/scripts/inspect.py <JSONL_PATH> --git
 
 # 4. 对话时间线流（按时间查看用户输入与模型回应）
-PYTHONUNBUFFERED=1 uv run --python 3.10 python ~/.gemini/config/skills/inspect-session/scripts/inspect.py <JSONL_PATH> --timeline
+PYTHONUNBUFFERED=1 uv run --python 3.10 python ~/.agents/skills/inspect-session/scripts/inspect.py <JSONL_PATH> --timeline
 
 # 5. 错误与失败审计（定位所有抛错工具与退出码）
-PYTHONUNBUFFERED=1 uv run --python 3.10 python ~/.gemini/config/skills/inspect-session/scripts/inspect.py <JSONL_PATH> --errors
+PYTHONUNBUFFERED=1 uv run --python 3.10 python ~/.agents/skills/inspect-session/scripts/inspect.py <JSONL_PATH> --errors
 
 # 6. 会话内关键词搜索
-PYTHONUNBUFFERED=1 uv run --python 3.10 python ~/.gemini/config/skills/inspect-session/scripts/inspect.py <JSONL_PATH> --search "关键词"
+PYTHONUNBUFFERED=1 uv run --python 3.10 python ~/.agents/skills/inspect-session/scripts/inspect.py <JSONL_PATH> --search "关键词"
 
 # 7. 导出结构化 Markdown 审计报告
-PYTHONUNBUFFERED=1 uv run --python 3.10 python ~/.gemini/config/skills/inspect-session/scripts/inspect.py <JSONL_PATH> --export-md /path/to/report.md
+PYTHONUNBUFFERED=1 uv run --python 3.10 python ~/.agents/skills/inspect-session/scripts/inspect.py <JSONL_PATH> --export-md /path/to/report.md
 ```
 
 ---

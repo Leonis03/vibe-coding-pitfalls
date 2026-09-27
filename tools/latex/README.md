@@ -57,4 +57,4 @@ dism /online /add-capability /capabilityname:Language.Fonts.Hans~~~und-HANS~0.0.
 `-LimitAccess` / `/limitaccess` 是关键：**不加的话即使给了 `-Source`，它仍会先去连 Windows Update**，离线就白准备了。
 
 WSL 侧的中文字体是另一套问题（matplotlib 出豆腐块、盘符路径在 WSL 恒不存在），见
-[`../../agent/skills/wsl-cjk-font/`](../../agent/skills/wsl-cjk-font/)。
+[`../../agent/skills/linux-cjk-font/`](../../agent/skills/linux-cjk-font/)。

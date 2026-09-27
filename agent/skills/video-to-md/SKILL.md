@@ -85,15 +85,17 @@ flowchart TD
 
 在技能目录的 `scripts/` 中提供了快速清洗与排版逐字稿的 Python 实用脚本。根据全局规范，始终前置 `PYTHONUNBUFFERED=1`（避免非 TTY 环境块缓冲导致输出延迟或空日志）并指定 `--python 3.12 python`：
 
+> **路径**：下面的命令统一写 `~/.agents/skills/video-to-md/`。装在别处也能用，换成实际位置即可：`~/.claude/skills/video-to-md/`、`~/.gemini/config/skills/video-to-md/`，或相对本 SKILL.md 的路径，三处有一处存在就行。
+
 ```bash
 # 1. 快速去除时间戳，保持原本单行结构（就地修改）
-PYTHONUNBUFFERED=1 uv run --python 3.12 python $HOME/.gemini/config/skills/video-to-md/scripts/clean_transcript.py -i input_transcript.md
+PYTHONUNBUFFERED=1 uv run --python 3.12 python $HOME/.agents/skills/video-to-md/scripts/clean_transcript.py -i input_transcript.md
 
 # 2. 去除时间戳并根据句末标点自动合并为自然段落
-PYTHONUNBUFFERED=1 uv run --python 3.12 python $HOME/.gemini/config/skills/video-to-md/scripts/clean_transcript.py -i -p input_transcript.md
+PYTHONUNBUFFERED=1 uv run --python 3.12 python $HOME/.agents/skills/video-to-md/scripts/clean_transcript.py -i -p input_transcript.md
 
 # 3. 指定输出到新文件
-PYTHONUNBUFFERED=1 uv run --python 3.12 python $HOME/.gemini/config/skills/video-to-md/scripts/clean_transcript.py input_transcript.md -o cleaned_transcript.md
+PYTHONUNBUFFERED=1 uv run --python 3.12 python $HOME/.agents/skills/video-to-md/scripts/clean_transcript.py input_transcript.md -o cleaned_transcript.md
 ```
 
 ---

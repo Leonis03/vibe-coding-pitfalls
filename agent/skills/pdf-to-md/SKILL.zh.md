@@ -21,12 +21,15 @@ arguments: [pdf_file]
 ## 1. 基于 `uv` 的一键快速执行
 
 ### 1.1 直接执行 PDF 转 Markdown
+
+> **路径**：下面的命令统一写 `~/.agents/skills/pdf-to-md/`。装在别处也能用，换成实际位置即可：`~/.claude/skills/pdf-to-md/`、`~/.gemini/config/skills/pdf-to-md/`，或相对本 SKILL.md 的路径，三处有一处存在就行。
+
 ```bash
 # 基础转换（默认使用相对图片路径 "figures_<文件名>/"）
-PYTHONUNBUFFERED=1 uv run --python 3.12 --with pymupdf python $HOME/.gemini/config/skills/pdf-to-md/scripts/convert_pdf_to_md.py input.pdf output.md
+PYTHONUNBUFFERED=1 uv run --python 3.12 --with pymupdf python $HOME/.agents/skills/pdf-to-md/scripts/convert_pdf_to_md.py input.pdf output.md
 
 # 带有外部公式真值字典映射、行内符号字典与自定义相对图片目录的转换
-PYTHONUNBUFFERED=1 uv run --python 3.12 --with pymupdf python $HOME/.gemini/config/skills/pdf-to-md/scripts/convert_pdf_to_md.py input.pdf output.md \
+PYTHONUNBUFFERED=1 uv run --python 3.12 --with pymupdf python $HOME/.agents/skills/pdf-to-md/scripts/convert_pdf_to_md.py input.pdf output.md \
     --figures-dir figures \
     --formula-map formula_map.json \
     --inline-map inline_map.json
@@ -35,7 +38,7 @@ PYTHONUNBUFFERED=1 uv run --python 3.12 --with pymupdf python $HOME/.gemini/conf
 ### 1.2 高清公式切片与矢量图提取（用于多模态视觉比对与 AI 纠错）
 一键扫描 PDF 中的公式编号与特征区域，导出 300 DPI 超清整页图、单公式小切片（如 `crops/eq_5.1-1.png`）、矢量图切片（`vector_figures/`），并**自动生成公式字典模板** `formula_map.template.json`：
 ```bash
-PYTHONUNBUFFERED=1 uv run --python 3.12 --with pymupdf python $HOME/.gemini/config/skills/pdf-to-md/scripts/extract_pdf_formula_crops.py input.pdf --out-dir pdf_formula_pages
+PYTHONUNBUFFERED=1 uv run --python 3.12 --with pymupdf python $HOME/.agents/skills/pdf-to-md/scripts/extract_pdf_formula_crops.py input.pdf --out-dir pdf_formula_pages
 ```
 
 ---

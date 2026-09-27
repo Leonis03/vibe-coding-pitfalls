@@ -1,5 +1,5 @@
 ---
-name: wsl-cjk-font
+name: linux-cjk-font
 description: Configure and render publication-grade Chinese (CJK) text and Unicode box-drawing tables in images via Python (Matplotlib, Seaborn, Pillow, OpenCV) in WSL and Linux environments. Automatically discovers Windows host fonts, user fonts (Sarasa Gothic, Microsoft YaHei), and Linux native CJK packages with zero glyph warnings and strict 2:1 monospace alignment.
 allowed-tools: Bash Read
 argument-hint: "[smoke-test | table | custom-plot]"
@@ -22,19 +22,22 @@ This skill provides an automated font discovery engine and battle-tested renderi
 
 ### 1.1 Run Full CJK Smoke Test (Zero-Warning Verification)
 Run an instant diagnostic to verify font loading, minus signs, LaTeX math, and PIL tables:
+
+> **Paths.** Commands below use `~/.agents/skills/linux-cjk-font/`. Any installed copy works: use `~/.claude/skills/linux-cjk-font/`, `~/.gemini/config/skills/linux-cjk-font/`, or a path relative to this SKILL.md instead -- only one of the three needs to exist.
+
 ```bash
-uv run --with matplotlib --with pillow --with numpy python $HOME/.gemini/config/skills/wsl-cjk-font/scripts/smoke_test.py
+uv run --with matplotlib --with pillow --with numpy python $HOME/.agents/skills/linux-cjk-font/scripts/smoke_test.py
 ```
 
 ### 1.2 Convert Text Table to High-Res Image
 Render any formatted table, ASCII chart, or terminal text into a styled PNG:
 ```bash
 # From file
-uv run --with pillow python $HOME/.gemini/config/skills/wsl-cjk-font/scripts/table_to_image.py input.txt output.png --title "实验对比结果"
+uv run --with pillow python $HOME/.agents/skills/linux-cjk-font/scripts/table_to_image.py input.txt output.png --title "实验对比结果"
 
 # From pipe
 echo -e "┌──────┬──────────┐\n│ 算法 │ 准确率   │\n├──────┼──────────┤\n│ YOLO │ 98.5%    │\n└──────┴──────────┘" | \
-uv run --with pillow python $HOME/.gemini/config/skills/wsl-cjk-font/scripts/table_to_image.py - output.png
+uv run --with pillow python $HOME/.agents/skills/linux-cjk-font/scripts/table_to_image.py - output.png
 ```
 
 ---

@@ -15,7 +15,7 @@
 # Windows account, the real course name. A plain cp is a bug in BOTH
 # directions:
 #
-#   repo -> live   wsl-cjk-font starts probing
+#   repo -> live   linux-cjk-font starts probing
 #                  /mnt/c/Users/<your-windows-user>/.../SarasaTermSC-Regular.ttf
 #                  No such file. matplotlib falls back to DejaVu Sans and emits
 #                  tofu squares WITHOUT raising -- the exact failure that skill
@@ -62,7 +62,7 @@ set -uo pipefail
 cd "$(dirname "$0")/.." || exit 2
 
 REPO_SKILLS=agent/skills
-TARGET_ROOTS=("$HOME/.claude/skills" "$HOME/.gemini/config/skills")
+TARGET_ROOTS=("$HOME/.agents/skills" "$HOME/.claude/skills" "$HOME/.gemini/config/skills")
 MAP_FILE=tools/.sync-map
 
 mode=${1:-check}

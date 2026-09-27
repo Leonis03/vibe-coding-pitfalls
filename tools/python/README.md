@@ -139,4 +139,4 @@ Python 3.12.14
 
 - [`../../agent/claude-code/claude-global.md`](../../agent/claude-code/claude-global.md) —— uv 规范、`PYTHONUNBUFFERED` 与块缓冲
 - [`../../wsl/setup/`](../../wsl/setup/) —— 代理环境变量在哪定义
-- [`../skills/wsl-cjk-font/`](../../agent/skills/wsl-cjk-font/) —— matplotlib / Pillow 的中文字体渲染
+- [`../skills/linux-cjk-font/`](../../agent/skills/linux-cjk-font/) —— matplotlib / Pillow 的中文字体渲染

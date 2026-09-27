@@ -32,7 +32,7 @@
 - **Python 走 `uv`，固定 3.12**。系统 `/usr/bin/python3` 保留给 Ubuntu 的 apt 包，不动它。
 - **装 skill 用 `cp`，不用 `ln -s`**。这棵树会在机器、文件系统和操作系统之间搬动，符号链接活不下来。
 - **同步 skill 用 `bash tools/sync-skills.sh`，也不要裸 `cp`**。仓库里写的是 `<your-home>`、
-  `CourseName` 这类占位符，脚本在写入 `~/.claude/skills/` 与 `~/.gemini/config/skills/`
+  `CourseName` 这类占位符，脚本在写入 `~/.claude/skills/`、`~/.gemini/config/skills/` 或 `~/.agents/skills/`
   时展开成真值，核对时比对**渲染后**的字节——所以"哈希相同"的含义是「仓库 ≡ 部署位，模脱敏」。
   不带参数跑是只读核对。家目录的写法看**会不会被 shell 展开**：会展开就写 `$HOME`（原样发布的
   运行时变量，不是占位符），展不开才写 `<your-home>`——全仓库只剩 JSON 里的两行，

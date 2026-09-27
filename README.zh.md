@@ -116,7 +116,7 @@ Docker；[`tools/latex/`](tools/latex/)（VS Code LaTeX Workshop 工具链，以
 | **f-string 引号规则** | `invalid syntax`，且 3.10 与 3.12 行为不同 | [`tools/python/`](tools/python/) 第 2 节 |
 | **`pkill -f` 杀掉自己** | 返回 255，看起来像 SSH 断连 | [`tools/remote-ssh.md`](tools/remote-ssh.md) 第 2 节 |
 | **Python 里设线程数太晚** | BLAS 已初始化，48 worker 开 3077 线程，慢 227 倍 | [`tools/remote-ssh.md`](tools/remote-ssh.md) 第 3 节 |
-| **盘符路径在 WSL 恒不存在** | `C:/Windows/Fonts/...` 找不到字体，静默出豆腐块且不报错 | [`agent/skills/wsl-cjk-font/`](agent/skills/wsl-cjk-font/) |
+| **盘符路径在 WSL 恒不存在** | `C:/Windows/Fonts/...` 找不到字体，静默出豆腐块且不报错 | [`agent/skills/linux-cjk-font/`](agent/skills/linux-cjk-font/) |
 | **写死的 Windows 账户名会过期** | 同样是静默豆腐块：`/mnt/c/Users/<旧机器的账户名>/...` 在本机不存在。WSL 里没有 `%USERPROFILE%`，该用 `glob("/mnt/c/Users/*/...")` | [`agent/skills/README.md`](agent/skills/README.md) |
 | **drvfs 大小写不敏感，会把写死的账户名藏起来** | 比上一条更阴：本机 Windows 账户名与 `$USER` 只差大小写，字符串相等判断为假，但 `/mnt/c/Users/$USER/...` 照样 stat 成功——于是「用 `$USER` 拼 Windows 家目录」这个错做法在本机**一直是通过的**，换台名字真不同的机器才静默失效 | [`wsl/setup/`](wsl/setup/) 常见问题 |
 | **zsh 在 `for` 列表里遇到无匹配 glob 会中止整个文件** | 同一份 `~/.shell_common` 被 bash 和 zsh 共用；bash 把字面量原样传下去，zsh 直接 `no matches found` 退出，后面的配置全不执行 | [`wsl/setup/`](wsl/setup/) 常见问题 |
@@ -133,7 +133,7 @@ Docker；[`tools/latex/`](tools/latex/)（VS Code LaTeX Workshop 工具链，以
 | **WSL 不走 Windows Update** | Windows 锁了版本，却以为 WSL 也一起锁住了；实际两个渠道互不相干 | [`wsl/setup/`](wsl/setup/) 维护节 |
 | **`.wslconfig` 不在仓库里，代理就必然坏** | `host_ip="127.0.0.1"` 只在 `networkingMode=mirrored` 下成立。复刻时漏掉这个 Windows 侧文件，WSL 退回 NAT，`127.0.0.1` 指向它自己，所有代理请求 connection refused——而报错离原因很远，`~/.shell_common` 里没有任何线索 | [`wsl/setup/`](wsl/setup/) 步骤 0.1 |
 | **ChkTeX 在中文文档刷屏误报** | `Use "'" (ASCII 39) instead of "´"` 刷满输出，真错误被淹没。它逐字节扫描而非 UTF-8 解码，汉字的后续字节落在 `´`(0xB4) 位上就被当成排版错误。改规则集没用，只能关掉 | [`tools/latex/`](tools/latex/) |
-| **`-Source` 给了仍然去连网** | 离线装 Windows 中文字体包，ISO 都挂好了还是失败——`Add-WindowsCapability` 不加 `-LimitAccess` 会先去问 Windows Update | [`tools/latex/`](tools/latex/) · [`agent/skills/wsl-cjk-font/`](agent/skills/wsl-cjk-font/) |
+| **`-Source` 给了仍然去连网** | 离线装 Windows 中文字体包，ISO 都挂好了还是失败——`Add-WindowsCapability` 不加 `-LimitAccess` 会先去问 Windows Update | [`tools/latex/`](tools/latex/) · [`agent/skills/linux-cjk-font/`](agent/skills/linux-cjk-font/) |
 | **pnpm 拦掉 postinstall 但不报错** | `pnpm update -g --latest` 退出码 0、看着装好了，命令却跑不起来——pnpm 10 起默认不执行生命周期脚本。要 `--allow-build=<包名>` 显式放行 | [`wsl/storage/pnpm-npm-cleanup-20260920.md`](wsl/storage/pnpm-npm-cleanup-20260920.md) 3.2 |
 | **脱敏占位符借用了 `$HOME`** | 同一个记号既表示"待替换的家目录"，又表示真正的 shell 变量；一渲染就把 `set-deepln.sh` 里的 `$HOME` 硬编码成本机路径，脚本到了租来的 GPU 机上全错。判据应该是"会不会被 shell 展开"，不是文件类型 | [`agent/skills/README.md`](agent/skills/README.md) |
 | **DeepLN 实例之间走公网域名不通** | 在一台租用机上 `ssh`/`rsync` 另一台的 `<实例>.deepln.com:<端口>` 一直超时，两个方向都一样。集群内要走 pod 内网 IPv4（`hostname -I`）的 22 端口，配 `ssh -A` 借本地密钥，实测 145–204 MB/s，约为家里上行的 100 倍 | [`agent/skills/deepln-setup/`](agent/skills/deepln-setup/) 第 5.3 节 |

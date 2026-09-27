@@ -20,12 +20,15 @@ This skill provides an **OpenXML-aware pipeline + Visual Formula Grounding Pipel
 ## 1. Fast Execution via `uv`
 
 ### 1.1 Direct Docx to Markdown Conversion
+
+> **Paths.** Commands below use `~/.agents/skills/docx-to-md/`. Any installed copy works: use `~/.claude/skills/docx-to-md/`, `~/.gemini/config/skills/docx-to-md/`, or a path relative to this SKILL.md instead -- only one of the three needs to exist.
+
 ```bash
 # Basic conversion (auto-extracts to "figures_<docname>/")
-PYTHONUNBUFFERED=1 uv run --python 3.12 --with python-docx python $HOME/.gemini/config/skills/docx-to-md/scripts/convert_docx_to_md.py input.docx output.md
+PYTHONUNBUFFERED=1 uv run --python 3.12 --with python-docx python $HOME/.agents/skills/docx-to-md/scripts/convert_docx_to_md.py input.docx output.md
 
 # Conversion with external LaTeX formula mapping and custom figure directory
-PYTHONUNBUFFERED=1 uv run --python 3.12 --with python-docx python $HOME/.gemini/config/skills/docx-to-md/scripts/convert_docx_to_md.py input.docx output.md \
+PYTHONUNBUFFERED=1 uv run --python 3.12 --with python-docx python $HOME/.agents/skills/docx-to-md/scripts/convert_docx_to_md.py input.docx output.md \
     --media-dir figures \
     --formula-map formula_map.json \
     --image-alts image_alts.json
@@ -34,7 +37,7 @@ PYTHONUNBUFFERED=1 uv run --python 3.12 --with python-docx python $HOME/.gemini/
 ### 1.2 High-Res Formula Image Extraction (For Visual Grounding & AI Correction)
 Extract 300 DPI full-page formula images and auto-crop individual numbered equation snippets (`eq_5.1-1.png`, etc.) for multimodal AI review:
 ```bash
-PYTHONUNBUFFERED=1 uv run --python 3.12 --with pymupdf python $HOME/.gemini/config/skills/docx-to-md/scripts/extract_formula_images.py input.docx --out-dir pdf_formula_pages
+PYTHONUNBUFFERED=1 uv run --python 3.12 --with pymupdf python $HOME/.agents/skills/docx-to-md/scripts/extract_formula_images.py input.docx --out-dir pdf_formula_pages
 ```
 
 ---

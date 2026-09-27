@@ -17,8 +17,10 @@ Claude Code stores conversations as a linked list via `parentUuid`. When session
 
 Run the analysis script to see all branch points and tips:
 
+> **Paths.** Commands below use `~/.agents/skills/trim-branch/`. Any installed copy works: use `~/.claude/skills/trim-branch/`, `~/.gemini/config/skills/trim-branch/`, or a path relative to this SKILL.md instead -- only one of the three needs to exist.
+
 ```bash
-python3 ~/.claude/skills/trim-branch/scripts/analyze.py <JSONL_PATH>
+python3 ~/.agents/skills/trim-branch/scripts/analyze.py <JSONL_PATH>
 ```
 
 This shows:
@@ -33,10 +35,10 @@ Once the user identifies the target (by line number or branch rank):
 
 ```bash
 # By line number (the line containing the desired message):
-python3 ~/.claude/skills/trim-branch/scripts/analyze.py <JSONL_PATH> --extract <LINE>
+python3 ~/.agents/skills/trim-branch/scripts/analyze.py <JSONL_PATH> --extract <LINE>
 
 # By branch rank (1 = deepest/longest branch):
-python3 ~/.claude/skills/trim-branch/scripts/analyze.py <JSONL_PATH> --extract-tip 1
+python3 ~/.agents/skills/trim-branch/scripts/analyze.py <JSONL_PATH> --extract-tip 1
 ```
 
 This traces back from the target message to the root, collecting only messages on that path plus associated system/meta messages. A backup of the original is automatically created as `<name>.original.jsonl`.
@@ -46,7 +48,7 @@ This traces back from the target message to the root, collecting only messages o
 After the user confirms the extracted content looks correct:
 
 ```bash
-python3 ~/.claude/skills/trim-branch/scripts/analyze.py <JSONL_PATH> --extract <LINE> --replace
+python3 ~/.agents/skills/trim-branch/scripts/analyze.py <JSONL_PATH> --extract <LINE> --replace
 ```
 
 Or manually:

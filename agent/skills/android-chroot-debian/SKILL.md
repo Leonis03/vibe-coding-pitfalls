@@ -134,9 +134,11 @@ description: >-
 ### 3.1 启动器部署
 完整脚本见 [`scripts/debian-chroot-launcher.sh`](scripts/debian-chroot-launcher.sh)。在 Termux 中部署方式：
 
+> **路径**：下面的命令统一写 `~/.agents/skills/android-chroot-debian/`。装在别处也能用，换成实际位置即可：`~/.claude/skills/android-chroot-debian/`、`~/.gemini/config/skills/android-chroot-debian/`，或相对本 SKILL.md 的路径，三处有一处存在就行。
+
 ```bash
 mkdir -p "$HOME/.local/bin"
-cp "$HOME/.gemini/config/skills/android-chroot-debian/scripts/debian-chroot-launcher.sh" "$HOME/.local/bin/debian"
+cp "$HOME/.agents/skills/android-chroot-debian/scripts/debian-chroot-launcher.sh" "$HOME/.local/bin/debian"
 chmod 700 "$HOME/.local/bin/debian"
 ```
 

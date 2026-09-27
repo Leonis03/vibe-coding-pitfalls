@@ -1,7 +1,7 @@
 ---
 name: antigravity-cli
 description: Delegate a one-shot prompt, a local image, or a task inside one directory to Google Antigravity CLI (agy, Gemini 3.x) through the least-privilege wrapper agy-run.sh -- sandboxed, read-only by default, write and command access only through grants the user runs. TRIGGER when the user asks to use Antigravity, agy or Gemini for a question, a second opinion, OCR / image description, or work inside a folder. DO NOT TRIGGER for images you can read yourself unless Gemini is requested, or for tasks that need network access from shell commands.
-allowed-tools: Bash(bash ~/.claude/skills/antigravity-cli/scripts/agy-run.sh *)
+allowed-tools: Bash(bash ~/.agents/skills/antigravity-cli/scripts/agy-run.sh *), Bash(bash ~/.claude/skills/antigravity-cli/scripts/agy-run.sh *), Bash(bash ~/.gemini/config/skills/antigravity-cli/scripts/agy-run.sh *)
 ---
 
 # Antigravity CLI (agy) -- least-privilege calls from an agent
@@ -17,11 +17,13 @@ outcome to an exit code.
 
 ## Run
 
+> **Paths.** Commands below use `~/.agents/skills/antigravity-cli/`. Any installed copy works: use `~/.claude/skills/antigravity-cli/`, `~/.gemini/config/skills/antigravity-cli/`, or a path relative to this SKILL.md instead -- only one of the three needs to exist.
+
 ```bash
-bash ~/.claude/skills/antigravity-cli/scripts/agy-run.sh "question"
-bash ~/.claude/skills/antigravity-cli/scripts/agy-run.sh --image /abs/shot.png "Transcribe all text exactly"
-bash ~/.claude/skills/antigravity-cli/scripts/agy-run.sh --dir /abs/project "Summarize README.md"
-printf '%s' "$long_prompt" | bash ~/.claude/skills/antigravity-cli/scripts/agy-run.sh -
+bash ~/.agents/skills/antigravity-cli/scripts/agy-run.sh "question"
+bash ~/.agents/skills/antigravity-cli/scripts/agy-run.sh --image /abs/shot.png "Transcribe all text exactly"
+bash ~/.agents/skills/antigravity-cli/scripts/agy-run.sh --dir /abs/project "Summarize README.md"
+printf '%s' "$long_prompt" | bash ~/.agents/skills/antigravity-cli/scripts/agy-run.sh -
 ```
 
 | Call | Workspace | agy can read | agy can write |
@@ -58,7 +60,7 @@ stdout is agy's answer; stderr carries diagnostics and ends with one
    `command(prefix)`), why agy needs it, and that it stays in force for every later agy run
    until revoked.
 3. If they agree, **they** type it:
-   `! bash ~/.claude/skills/antigravity-cli/scripts/agy-run.sh grant write /abs/dir`
+   `! bash ~/.agents/skills/antigravity-cli/scripts/agy-run.sh grant write /abs/dir`
    or `... grant command 'uv run'`. Never run `grant` yourself; the hook blocks it.
 4. Re-run. `revoke write|command ...` and `grants` you may run yourself.
 
@@ -106,7 +108,7 @@ sandbox is what keeps them inside the workspace.
      }]
    }
    ```
-4. Check: `bash ~/.claude/skills/antigravity-cli/scripts/agy-run.sh grants` warns about
+4. Check: `bash ~/.agents/skills/antigravity-cli/scripts/agy-run.sh grants` warns about
    wildcard rules or a missing `/tmp` deny.
 
 Something wrong? Diagnostics, proxy, login and raw-agy behavior: **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)**

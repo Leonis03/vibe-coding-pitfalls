@@ -54,7 +54,7 @@ dos2unix file                       # 同上，需要装 dos2unix
 
 - **文档里一律用仓库相对路径**，复现命令写成从仓库根起的 `cd <subdir>`
 - 引用位置用 `文件:行号` 形式，跨平台通用
-- **代码里不要硬编码任一平台的路径**——最典型的是字体路径，见 [`../agent/skills/wsl-cjk-font/`](../agent/skills/wsl-cjk-font/)
+- **代码里不要硬编码任一平台的路径**——最典型的是字体路径，见 [`../agent/skills/linux-cjk-font/`](../agent/skills/linux-cjk-font/)
 
 ---
 
