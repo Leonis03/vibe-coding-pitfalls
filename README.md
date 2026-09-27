@@ -166,6 +166,7 @@ Entries that took real time to diagnose and whose conclusion is not obvious.
 | **A `: ` in a skill's `description` makes strict parsers drop the skill silently** | Fine in Claude Code, but `npx skills add --list` shows two fewer skills and no error. An unquoted YAML value may not contain `: `; Claude Code tolerates it, strict parsers skip the skill. Use ` -- ` or quote the value | [`agent/skills/README.md`](agent/skills/README.md) conventions |
 | **A wrong jq path silently yields 0 rows** | Using `.web.results[]` against `bx news` exits 0 with no error and looks like "no results for this topic" | [`agent/brave-search/bx-cli.md`](agent/brave-search/bx-cli.md) section 6 |
 | **A search-gating skill became a fixed tax** | `CLAUDE.md` is resident every session while a skill body loads on demand; making a 2.2k skill a prerequisite for `bx` inverts the cost structure | [`agent/claude-code/README.md`](agent/claude-code/README.md) |
+| **Force-pushed the `Co-Authored-By` away, Contributors still shows Claude** | The remote history is clean and a further push changes nothing; the REST contributors endpoint lists authors only and never showed Claude, while the page kept doing so. The box is a cache, rebuilt when the default branch is renamed away and back | [`agent/skills/github-coauthor-scrub/`](agent/skills/github-coauthor-scrub/) |
 | **Redaction regexes keep leaking** | The same value rendered differently (case, column alignment, another command's output format, a label in another language) slips past the check. Five rounds in a row failed here | [`tools/privacy-gate.sh`](tools/privacy-gate.sh) header comment |
 | **The input method will not bind under Wayland** | An Electron app runs fine but cannot type Chinese, and no flag helps. Weston reserves `input_method` for its own IME client and WSLg does not run one; worse, fcitx5 hitting error 71 **exits the whole process**, taking the X11-side input method with it | [`wsl/gui-ime/`](wsl/gui-ime/) sections 1 and 9 |
 | **`wmctrl` is useless under WSLg** | Window-placement scripts silently do nothing. The Weston WM does not export `_NET_CLIENT_LIST`, so `wmctrl -l` always fails -- and the script uses exactly that to find windows | [`wsl/gui-ime/`](wsl/gui-ime/) section 8 |
@@ -220,6 +221,11 @@ The following is **not** covered by either license above; copyright stays with i
   file's header.
 - `agent/skills/find-skills/` -- taken from `skills/find-skills/` in
   [vercel-labs/skills](https://github.com/vercel-labs/skills), **MIT**. The standalone skills
+  repo leaves it out.
+- `agent/skills/skill-creator/` -- taken unmodified from
+  `plugins/skill-creator/skills/skill-creator/` in
+  [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official),
+  copyright Anthropic, **Apache-2.0** (full text in its `LICENSE.txt`). The standalone skills
   repo leaves it out.
 - `shell/files/bashrc` retains fragments of Debian's stock `.bashrc`
   (`shopt -s checkwinsize`, `lesspipe`, `dircolors`, `alias ll=` and similar).

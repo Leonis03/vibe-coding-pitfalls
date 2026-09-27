@@ -65,14 +65,16 @@
   - **不自动提交**。发布是唯一撤不回的一步，所以 commit 与 push 留给人。
 
   - **公开仓的提交信息里不能带 AI 的 `Co-Authored-By`**（Claude、Codex、Copilot、Gemini 等）。GitHub
-    会把共同作者列进仓库的 Contributors。`publish.sh` 会给两个 clone 装一个 commit-msg 钩子拒收这种提交，
-    导出前也会检查已有历史，发现就停下，并打印改写命令（只删 AI 那一行，人类共同作者保留）。
+    会把共同作者列进仓库的 Contributors。`publish.sh` 借 [`github-coauthor-scrub`](agent/skills/github-coauthor-scrub/)
+    skill 的脚本给两个 clone 装 commit-msg 钩子拒收这种提交，导出前也检查已有历史，发现就停下并给出清理步骤。
     私有仓库和它的 PR 不受这条限制。
 
   公开仓默认走**正常历史**，普通 `commit` + `push`，不要 `--amend` 强推——任何人 clone 过就会被打乱。
   **例外：以下情况允许改写历史并强推**——提交信息带了 AI 的 `Co-Authored-By`；把隐私、凭据等不该公开的
   内容发了出去，需要从历史里清掉；其他同等性质的特殊情况。做法固定：改写前先留一个本地备份分支，推送用
-  `git push --force-with-lease=main:<改写前的 SHA>`，确认远端没有别人的新提交才覆盖。
+  `git push --force-with-lease=main:<改写前的 SHA>`，确认远端没有别人的新提交才覆盖；**推完再把默认分支改名
+  再改回来**，否则 GitHub 缓存的 Contributors 里还挂着那个名字。整套步骤见
+  [`github-coauthor-scrub`](agent/skills/github-coauthor-scrub/)（`rewrite` → 推送 → `refresh` → `verify`）。
   （先例：2026-09-28 去掉了 6 个提交里 Claude 的 `Co-Authored-By`；更早有两次 amend，一次补许可证、
   一次改提交消息格式。）
 - **凭据不进版本库**。需要环境变量形式的 token 时放 `~/.shell_secrets`（`chmod 600`），由 `~/.shell_common` 末尾自动加载。

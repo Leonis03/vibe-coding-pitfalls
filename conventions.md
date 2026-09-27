@@ -91,7 +91,8 @@
 
   - **Commits in the public repos carry no AI `Co-Authored-By` trailer** (Claude, Codex,
     Copilot, Gemini and the like): GitHub lists co-authors under the repo's Contributors.
-    `publish.sh` installs a commit-msg hook in both clones that rejects such a commit, and checks
+    `publish.sh` uses the [`github-coauthor-scrub`](agent/skills/github-coauthor-scrub/) skill's
+    script to install a commit-msg hook in both clones that rejects such a commit, and checks
     the existing history before exporting; if it finds one it stops and prints the rewrite
     (which drops only the AI lines and keeps human co-authors). The private repo and its PRs are
     not bound by this.
@@ -102,7 +103,10 @@
   when private data or a credential was published and has to leave the history, or in a
   comparable special case. The procedure is fixed: keep a local backup branch before rewriting,
   and push with `git push --force-with-lease=main:<SHA before the rewrite>`, so nobody else's
-  new commit gets overwritten. (Precedent: on 2026-09-28 Claude's `Co-Authored-By` was removed
+  new commit gets overwritten. **Then rename the default branch away and back**, or GitHub's
+  cached Contributors box keeps the name. The whole sequence is the
+  [`github-coauthor-scrub`](agent/skills/github-coauthor-scrub/) skill (`rewrite`, push,
+  `refresh`, `verify`). (Precedent: on 2026-09-28 Claude's `Co-Authored-By` was removed
   from six commits; earlier, two amends added the licenses and reformatted a commit message.)
 - **Credentials never enter version control.** Tokens that need to be environment variables go
   in `~/.shell_secrets` (`chmod 600`), loaded automatically at the end of `~/.shell_common`.

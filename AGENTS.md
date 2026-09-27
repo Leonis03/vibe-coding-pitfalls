@@ -77,6 +77,9 @@ Every top-level directory except `tmp/` has a `README.md` index. Read it before 
   Write `$HOME` where a shell expands it, detect at runtime where possible, else use a placeholder
   (`<your-home>`, `<your-linux-user>`, `<your-windows-user>`, `<proxy-port>`, `<ssh-port>`, `<instance-domain>`). Details: `redaction.md`.
 - Skills are deployed with `tools/sync-skills.sh`, never `cp` or `ln -s`: the repo copy is redacted.
+- Vendored skills (`find-skills`, `skill-creator`) are verbatim upstream copies: do not apply this repo's skill
+  rules to them, update by re-copying the whole directory, credit them in the README's third-party section.
+  `publish.sh` leaves them out of the skills repo (its `VENDORED` list).
 - Python runs through `uv run --python 3.12`, never the system `python3`.
 - Scratch files, raw command output, and backups go in `tmp/`, not the repo root or `/tmp`.
 
@@ -97,4 +100,6 @@ Every top-level directory except `tmp/` has a `README.md` index. Read it before 
 - Public repos: no AI `Co-Authored-By` trailer in any commit -- GitHub lists co-authors under Contributors. The
   clones' commit-msg hook (installed by `publish.sh`) rejects one. Rewriting public history and force-pushing is
   allowed only to remove such a trailer, private data or a credential, or a comparable special case: keep a local
-  backup branch first and push with `--force-with-lease=main:<old SHA>` (see `conventions.md`).
+  backup branch first, push with `--force-with-lease=main:<old SHA>`, then rename the default branch away and back
+  so GitHub rebuilds its cached Contributors box. `agent/skills/github-coauthor-scrub/` scripts every step
+  (`scan`, `rewrite`, `refresh`, `verify`, `hook`); see `conventions.md`.

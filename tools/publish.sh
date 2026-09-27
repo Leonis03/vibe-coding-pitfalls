@@ -41,7 +41,7 @@ set -uo pipefail
 cd "$(dirname "$0")/.." || exit 2
 REPO=$PWD
 REF=origin/main
-VENDORED=(find-skills)   # third-party skills: not ours to republish alone
+VENDORED=(find-skills skill-creator)   # third-party skills: not ours to republish alone
 
 skip_gate=0
 if [ "${1:-}" = "--skip-gate" ]; then skip_gate=1; shift; fi
@@ -63,39 +63,19 @@ for d in "$PUB" ${SKL:+"$SKL"}; do
 done
 
 # --- no AI co-author in public history --------------------------------------
-# GitHub lists every Co-Authored-By trailer under the repo's Contributors, so
-# an AI assistant's trailer puts it there. Each clone gets a commit-msg hook
-# that rejects one, and history that already carries one stops the run.
-AI_COAUTHOR_RE='^co-authored-by:.*(claude|anthropic|openai|chatgpt|codex|copilot|gemini|cursor|devin|aider)'
-HOOK_MARK='installed by vibe-coding-pitfalls-private/tools/publish.sh'
+# GitHub lists every Co-Authored-By trailer under a repo's Contributors, so
+# an AI assistant's trailer puts it there. The github-coauthor-scrub skill
+# does the work: a commit-msg hook in each clone rejects such a trailer, and
+# history that already carries one stops the run before anything is written.
+SCRUB="$REPO/agent/skills/github-coauthor-scrub/scripts/coauthor-scrub.sh"
 for d in "$PUB" ${SKL:+"$SKL"}; do
-  hook="$(cd "$d" && git rev-parse --absolute-git-dir)/hooks/commit-msg"
-  if [ -e "$hook" ] && ! grep -q "$HOOK_MARK" "$hook"; then
-    echo "WARNING: $hook exists and is not ours -- AI co-author check NOT installed there"
-  else
-    mkdir -p "$(dirname "$hook")"
-    cat > "$hook" <<HOOK
-#!/bin/sh
-# commit-msg -- $HOOK_MARK
-# Public repo: GitHub would list an AI co-author under Contributors.
-if grep -qiE '$AI_COAUTHOR_RE' "\$1"; then
-  echo "commit-msg: drop the AI Co-Authored-By trailer -- this is a public repo (see conventions.md)" >&2
-  exit 1
-fi
-HOOK
-    chmod +x "$hook"
-  fi
-  n=$(git -C "$d" log --format=%B 2>/dev/null | grep -ciE "$AI_COAUTHOR_RE")
-  if [ "$n" -gt 0 ]; then
-    echo "$d: $n commit(s) in its history carry an AI co-author trailer. Nothing written."
-    echo "Rewrite them (human co-authors are kept), then force-push -- allowed for this case:"
-    sed "s|CLONE|$d|g" <<'FIX'
-  cd CLONE && b=$(git symbolic-ref --short HEAD)
-  git branch -f backup-before-trailer-strip HEAD
-  FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch -f --msg-filter \
-    "perl -0pe 's/^co-authored-by:.*(?:claude|anthropic|openai|chatgpt|codex|copilot|gemini|cursor|devin|aider)[^\n]*\n?//gmi; s/\n+\z/\n/'" -- "$b"
-  git push --force-with-lease="$b:$(git rev-parse backup-before-trailer-strip)" origin "$b"
-FIX
+  bash "$SCRUB" hook -C "$d" > /dev/null \
+    || echo "WARNING: the AI co-author hook is NOT installed in $d (see above)"
+  if ! out=$(bash "$SCRUB" scan -C "$d"); then
+    printf '%s\n' "$out"
+    echo "Nothing written. Clean that history first -- force-push is allowed for this (conventions.md):"
+    echo "  bash $SCRUB rewrite -C $d     # then run the push commands it prints"
+    echo "  bash $SCRUB refresh <owner/repo>   # or GitHub keeps showing the co-author"
     exit 1
   fi
 done

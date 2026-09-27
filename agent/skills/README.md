@@ -1,6 +1,6 @@
 # Skills
 
-18 个 skill，同时供 Claude Code（`~/.claude/skills/`）与 Antigravity（`~/.gemini/config/skills/`）使用，也可以装在 `~/.agents/skills/`。
+20 个 skill，同时供 Claude Code（`~/.claude/skills/`）与 Antigravity（`~/.gemini/config/skills/`）使用，也可以装在 `~/.agents/skills/`。
 两边装的集合不同（见下表），但凡是两边都有的，内容保持一致。
 
 ## 部署与核对：不能直接 cp
@@ -63,7 +63,7 @@ bash ../../tools/sync-skills.sh deploy bx  # 只处理一个
 
 ## 公开发布
 
-除第三方的 `find-skills` 外，全部 skill 还会由 [`../../tools/publish.sh`](../../tools/publish.sh) 导出到公开仓库
+除第三方的 `find-skills`、`skill-creator` 外，全部 skill 还会由 [`../../tools/publish.sh`](../../tools/publish.sh) 导出到公开仓库
 [vibe-coding-pitfalls-skills](https://github.com/Leonis03/vibe-coding-pitfalls-skills) 的 `skills/<name>/`，
 那边的 README 按各 skill 的 frontmatter 自动生成——所以 `description` 的第一句要能单独读懂。
 导出的是脱敏后的仓库原样，占位符不渲染。
@@ -95,6 +95,8 @@ bash ../../tools/sync-skills.sh deploy bx  # 只处理一个
 | `inspect-session` · `trim-branch` | | ✅ | ✅ | | **if** WSL / Linux | 读 `~/.claude/projects` 下的会话 JSONL，Python 脚本 |
 | `shuorenhua` | ✅ | ✅ | ✅ | ✅ | 任意平台 | 纯文字编辑，不跑命令 |
 | `find-skills` | ✅ | ✅ | ✅ | ✅ | 任意平台（需 Node） | 只调用 `npx skills` |
+| `github-coauthor-scrub` | | ✅ | ✅ | | **if** WSL / Linux（需 git、perl、`gh`） | bash 脚本；`refresh`、`verify` 走 GitHub API，要 `gh` 已登录 |
+| `skill-creator` | ✅ | ✅ | ✅ | | 任意平台（需 Python）；跑评测、优化描述 **only if** Claude Code | 起草、改写 skill 哪都能做；评测要派子 agent，描述优化要 `claude -p` |
 
 ## 装在哪
 
@@ -108,6 +110,8 @@ bash ../../tools/sync-skills.sh deploy bx  # 只处理一个
 | `android-chroot-debian` · `termux-debian-external-drive` · `wsl-windows-command` | ✅ | ✅ | — | — |
 | `linux-cjk-font` | — | ✅ | — | — |
 | `compress-wsl-space` | — | — | — | — |
+| `github-coauthor-scrub` | — | — | ✅ | ✅ |
+| `skill-creator` | — | — | —（插件已提供） | ✅ |
 
 - Linux 桌面两栏是 2026-09-28 按上面的规则装的：Android、WSL 专属的都不装；`linux-cjk-font`（原名
   `wsl-cjk-font`）在原生 Linux 上也能用，但这台机器用不上，没装；`video-to-md` 不进 `.claude`，因为读视频靠的是 agy 的 `view_file`。
@@ -137,6 +141,9 @@ bash ../../tools/sync-skills.sh deploy <name>
   这在 YAML 里不合法：Claude Code 的加载器能容忍，照样加载；但 `npx skills` 这类严格解析器会**不报错地跳过整个 skill**。
   `deepln-setup`、`gpu-cuda-checks` 就是这样在公开 skill 仓库里消失的。`tools/publish.sh` 导出前会检查这一条。
 - 带 `SKILL.zh.md` 的 skill，中文版是对照副本，**不被 harness 加载**，以英文主版为准。
+- **第三方 skill（`find-skills`、`skill-creator`）原样保留**，不套本仓库的规则（`~/.agents` 路径、「路径」说明等），
+  更新时整个目录重新从上游拷贝；来源与许可证记在根目录 README 的「第三方内容」一节，`publish.sh` 不把它们发到公开 skill 仓库。
+  `skill-creator` 在 Claude Code 里已经由官方插件 `skill-creator@claude-plugins-official` 提供，所以只装 `.gemini`，免得两份同名。
 - **skill 里调用自身脚本的路径统一写 `~/.agents/skills/<name>/...`**，并在第一处用到的地方加一条「路径」说明：
   装在 `~/.claude/skills/`、`~/.gemini/config/skills/` 也行，用相对本 SKILL.md 的路径也行，三处有一处存在就能执行。
   不要写死某个 harness 的目录。以前 `docx-to-md`、`pdf-to-md` 写的是 `.gemini`，只装 `.claude` 的机器就找不到脚本。

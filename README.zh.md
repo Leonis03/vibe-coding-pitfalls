@@ -141,6 +141,7 @@ Docker；[`tools/latex/`](tools/latex/)（VS Code LaTeX Workshop 工具链，以
 | **skill 的 `description` 里有 `: `，严格解析器静默丢掉整个 skill** | Claude Code 里好好的，`npx skills add --list` 却少两个、不报错。不加引号的 YAML 值里 `: ` 不合法，Claude Code 宽松放行，严格解析器直接跳过。改成 ` -- ` 或加引号 | [`agent/skills/README.md`](agent/skills/README.md) 约定 |
 | **jq 路径写错静默出 0 行** | 对 `bx news` 用 `.web.results[]`，exit 0 无报错，看起来像"这话题没结果" | [`agent/brave-search/bx-cli.md`](agent/brave-search/bx-cli.md) 第 6 节 |
 | **搜索前置 skill 成了固定税** | CLAUDE.md 每会话常驻、skill 正文按需加载，把 2.2k 的 skill 设成 `bx` 前置，成本结构正好反了 | [`agent/claude-code/README.md`](agent/claude-code/README.md) |
+| **强推清掉了 `Co-Authored-By`，Contributors 里还挂着 Claude** | 远端历史已经干净，又推了新提交也不变；REST 的 contributors 接口只列作者，从头到尾都没有 Claude，页面上却一直显示。那个框是缓存，要把默认分支改名再改回来才会重算 | [`agent/skills/github-coauthor-scrub/`](agent/skills/github-coauthor-scrub/) |
 | **脱敏正则反复漏网** | 同一个值换种渲染方式（大小写、列对齐、另一条命令的输出格式、换语言的标签）就逃过检查，5 轮都栽在这 | [`tools/privacy-gate.sh`](tools/privacy-gate.sh) 头部注释 |
 | **Wayland 下输入法绑不上** | Electron 应用跑得好好的就是打不出中文，flag 怎么调都没用。Weston 把 `input_method` 留给自己的 IME 客户端，WSLg 又不跑它；更坑的是 fcitx5 撞上 error 71 会**整个进程退出**，连 X11 侧输入法一起没 | [`wsl/gui-ime/`](wsl/gui-ime/) 第 1、9 节 |
 | **`wmctrl` 在 WSLg 全废** | 窗口摆放脚本静默空转、什么也没发生。Weston WM 不导出 `_NET_CLIENT_LIST`，`wmctrl -l` 恒失败，而脚本恰好用它找窗口 | [`wsl/gui-ime/`](wsl/gui-ime/) 第 8 节 |
@@ -185,6 +186,7 @@ Docker；[`tools/latex/`](tools/latex/)（VS Code LaTeX Workshop 工具链，以
 
 - `windows/powershell/SamplePSReadLineProfile_GitHub.ps1` —— [PowerShell/PSReadLine](https://github.com/PowerShell/PSReadLine) 官方示例的逐字副本，694 行，Copyright (c) 2013 Jason Shirk，**BSD-2-Clause**。完整声明已写在该文件头部。
 - `agent/skills/find-skills/` —— 取自 [vercel-labs/skills](https://github.com/vercel-labs/skills) 的 `skills/find-skills/`，**MIT**。单独发布的 skill 仓库不收录它。
+- `agent/skills/skill-creator/` —— 取自 [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official) 的 `plugins/skill-creator/skills/skill-creator/`，Copyright Anthropic，**Apache-2.0**（许可证全文随目录附在 `LICENSE.txt`）。原样拷贝、未修改；单独发布的 skill 仓库不收录它。
 - `shell/files/bashrc` 保留了 Debian 出厂 `.bashrc` 的若干片段（`shopt -s checkwinsize`、`lesspipe`、`dircolors`、`alias ll=` 等）。
 - `shell/files/` 下几个文件含安装器生成的块：oh-my-zsh 相关行、Antigravity CLI 的 PATH 块。
 
