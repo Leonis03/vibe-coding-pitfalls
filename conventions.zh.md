@@ -10,11 +10,21 @@
   取证记录与时点快照在名字末尾加 `-YYYYMMDD`（`etc-diff-analysis-20260330.md`、
   `pnpm-npm-cleanup-20260920.md`），流程型与常青文档不加。
   唯一的例外是**协议性文件名**：`README.md`、`README.zh.md`、`SKILL.md`、`SKILL.zh.md`、
-  `CLAUDE.md`、`TROUBLESHOOTING.md`——它们被工具或 harness 按字面查找，改了就失效。
+  `AGENTS.md`、`CLAUDE.md`、`TROUBLESHOOTING.md`——它们被工具或 harness 按字面查找，改了就失效。
+- **`AGENTS.md` / `CLAUDE.md` 只在根目录出现**。harness 会把子目录里这两个名字的文件当作指令自动加载，
+  所以要部署成这两个名字的**原件**在仓库里另起名字：`agent/claude-code/claude-global.md` →
+  `~/.claude/CLAUDE.md`，`agent/antigravity/agents-brave-uv.md` → `~/.gemini/config/AGENTS.md`。
+- **除 `tmp/` 外，每个顶层目录有一个 `README.md` 做索引**；目录里有 `files/` 的，`files/` 下是可直接部署的原件，
+  其余是文档。原件若同时用于多个平台（如 bash / zsh 配置），放在平台无关的目录（[`shell/`](shell/)），
+  不放在某个平台目录下。
 - **根级文档双语，子目录单语**：根目录每篇都是一对——`x.md` 英文（GitHub 默认渲染的那一份）、
   `x.zh.md` 中文正本。目前是 `README` / `conventions` / `redaction` 三对。
   改动先落在中文版，再同步英文版——踩坑索引的措辞是排查结论的浓缩，先用母语写准再翻译。
   **子目录的文档只有中文**，不配英文版；skill 是例外，因为它要被 agent 读，双语各有用处。
+  根目录的 [`AGENTS.md`](AGENTS.md) 也是例外：它是给 agent 的入口，只有英文、纯 ASCII；
+  `CLAUDE.md` 只有一行 `@AGENTS.md`，让 Claude Code 读到同一份。
+  **目录结构、部署位或「必须一起改的文件」变了，同一个提交里更新 `AGENTS.md`**——它过期了，
+  agent 就会按旧地图改错地方。
 - **README 只做落地页与路由**：头部、从哪开始、目录、踩坑索引、许可证。
   成体系又不是每次都要读的内容拆成独立文件，在「从哪开始」那张表里留一行指过去——
   和 skill 用 `SKILL.md` + `references/` 分流是同一套做法。
@@ -32,22 +42,27 @@
   这个目录已 gitignore，`git archive` 导不出去，`privacy-gate.sh` 也**跳过**它，
   所以里面可以放带真实路径和账户名的东西，不会把门禁搞成天天红。
   `tmp/.gitkeep` 是被跟踪的，新 clone 下来目录就在。
-- **发布前跑 `bash tools/privacy-gate.sh`**。它只覆盖已知形态，跑通不等于安全——`wsl/storage/` 是原始取证输出，必须人工读。
+- **发布前跑 `bash tools/privacy-gate.sh`**。它只覆盖已知形态，跑通不等于安全——`wsl/storage/forensics/` 是原始取证输出，必须人工读。
   账户名**不写在脚本里**（写进去，这个脚本自己就成了泄露源），运行时从 `tools/.privacy-names`（已 gitignore）读取。
-- **导出公开副本用 `git archive`，不要 `cp -r`**。`cp -r` 会把靠 gitignore 挡住的本地私有文件一并复制进公开目录。
-  本仓库是**私有主仓 + 公开快照**的双仓结构，公开仓自带 `.git`，所以同步流程固定为四步：
+- **发布到公开仓库用 `bash tools/publish.sh`，不要手工 `cp -r`**。本仓库是**私有主仓 + 两个公开快照**：
+  [`vibe-coding-pitfalls`](https://github.com/Leonis03/vibe-coding-pitfalls) 是整棵树，
+  [`vibe-coding-pitfalls-skills`](https://github.com/Leonis03/vibe-coding-pitfalls-skills) 只有 skill
+  （`agent/skills/<name>/` → `skills/<name>/`，不含第三方的 `find-skills`，README 由脚本按各 skill 的
+  frontmatter 生成）。两个公开仓各自有 `.git`，本机各 clone 一份，目录名随意：
 
   ```bash
-  cd ~/dev/my-config                                   # 公开仓
-  find . -mindepth 1 -maxdepth 1 -not -name '.git' -exec rm -rf {} +
-  ( cd ../my-config-private && git archive HEAD ) | tar -x -C .
-  git add -A && git commit && git push
+  bash tools/publish.sh <公开仓 clone> <skills 仓 clone>
+  git -C <公开仓 clone> status        # 逐个看 diff，再各自 add / commit / push
   ```
 
-  **第二步「清空」不能省。** 不清空的话，私有仓里删掉的文件在公开仓会残留——`tar -x` 只覆盖不删除。
-  而清空必须 `-not -name '.git'`，否则连仓库本身一起没了。
-  **第三步用 `git archive` 而不是 `cp -r`**，这样 `tools/.privacy-names`、`tools/.sync-map`、`tmp/` 天然进不去。
-  推送前核一遍：`find . -type f -not -path './.git/*' | git check-ignore --stdin`，应无输出。
+  脚本做的事，也就是手工同步时不能省的步骤：
+  - **导出的是 `origin/main`，不是 `HEAD`**。本机 checkout 常停在功能分支上，`git archive HEAD`
+    会把那个分支发出去；`origin/main` 才是合并过、审过的内容。
+  - **用 `git archive` 而不是 `cp -r`**，`tools/.privacy-names`、`tools/.sync-map`、`tmp/` 天然进不去。
+  - **写入前先对导出内容跑 `privacy-gate.sh`**，没过就什么都不写。每条命中都读过、确认是预期的
+    （比如账户名恰好等于公开作者名），才加 `--skip-gate` 重跑。
+  - **先清空再解包**，否则私有仓里删掉的文件会残留在公开仓——`tar -x` 只覆盖不删除；清空时保留 `.git`。
+  - **不自动提交**。发布是唯一撤不回的一步，所以 commit 与 push 留给人。
 
   公开仓走**正常历史**，普通 `commit` + `push`，不要 `--amend` 强推——它上线后任何人 clone 过就会被打乱。
   （历史上有两次 amend：一次补许可证、一次改提交消息格式，都在无人 clone 的窗口内。）

@@ -6,7 +6,7 @@
 >
 > **本文以 Ubuntu 24.04 为基准**，它是此前的主力发行版。日常工作现已转到 Fedora 44，配置正在向它对齐；
 > 步骤本身大多通用，**发行版特定的差异单独记在** [`../distro-differences.md`](../distro-differences.md)
-> 第四节（包名、`chsh`、系统骨架、corepack、wslu 缺失、fcitx5 绕路），照本文做 Fedora 时对照那一节。
+> 第四节（包名、`chsh`、系统骨架、wslu 缺失、fcitx5 绕路），照本文做 Fedora 时对照那一节。
 
 **参考环境（2026-09-20 实测）**
 
@@ -15,16 +15,17 @@
 | 发行版 | Ubuntu 24.04.4 LTS (noble) |
 | WSL | 2.7.14.0（`release/2.7` 加固轨） |
 | 内核 | 6.18.33.2-microsoft-standard-WSL2 |
-| 默认 Shell | zsh 5.9 + oh-my-zsh（主题 `robbyrussell`，插件 `git` `zsh-autosuggestions`） |
+| 默认 Shell | zsh 5.9 + oh-my-zsh（主题 `robbyrussell`，插件 `git` `zsh-autosuggestions` `zsh-syntax-highlighting`） |
 | apt 源 | 清华 TUNA 镜像 |
-| 工具链 | git 2.55.0（git-core PPA）· gh 2.93.0 · node v24.21.0 (nvm 0.40.4) · pnpm 11.27.0 · uv 0.12.5 (Python 3.12) |
+| 工具链 | git 2.55.0（git-core PPA）· gh 2.93.0 · node v24.21.0 (nvm 0.40.4) · pnpm 12.6.0 · uv 0.12.5 (Python 3.12) |
 | 互操作 | `appendWindowsPath=false` + 显式函数桥接 |
 
 ---
 
 ## 一、本目录内容
 
-`files/` 存放可直接复制的配置文件**原件**（已脱敏，不含任何凭据）：
+`files/` 存放 **WSL 专属**、可直接复制的配置文件原件（已脱敏，不含任何凭据）。
+bash / zsh 的四层 shell 配置与原生 Linux 桌面共用，原件在 [`../../shell/`](../../shell/)，步骤 4 部署。
 
 | 仓库中的文件 | 部署到 | 作用 |
 | :--- | :--- | :--- |
@@ -35,12 +36,6 @@
 | `files/systemd/systemd-binfmt-no-unregister.conf` | `/etc/systemd/system/systemd-binfmt.service.d/no-unregister.conf` | 阻止发行版优雅关机时清空全局 binfmt 表 |
 | `files/systemd/wsl-mount-guard.service`<br>`files/systemd/wsl-mount-guard.timer` | `/etc/systemd/system/` | `/mnt/wsl` 共享 bind 守护。另一个发行版优雅关机会把你的 bind 传播式卸载掉，见步骤 1.4 |
 | `files/bin/wslview` | `~/.local/bin/wslview` | **仅在没有 wslu 的发行版上需要**（如 Fedora）。`BROWSER` 必须指向真实可执行文件，不能是 shell 函数，见 [`../distro-differences.md`](../distro-differences.md) 第四节 |
-| `files/shell_common` | `~/.shell_common` | **bash 与 zsh 共用**的环境变量、PATH、代理、输入法、keyring |
-| `files/shell_wslfn` | `~/.shell_wslfn` | Windows 互操作**函数**定义。除末尾 export 一个 `BASH_ENV` 指回自己（给非交互 bash 用）外无副作用，所以够轻，敢从 `~/.zshenv` 里 source |
-| `files/zshenv` | `~/.zshenv` | 每次 zsh 启动都会读，**包括非交互**（脚本 / AI Agent） |
-| `files/zshrc` | `~/.zshrc` | zsh 专有：oh-my-zsh、主题、PROMPT |
-| `files/bashrc` | `~/.bashrc` | bash 专有：PS1、历史、补全 |
-| `files/profile` | `~/.profile` | 登录 shell 入口 |
 
 > 配置文件内的注释一律使用**纯 ASCII 英文**，避免跨机器、跨终端的编码问题。
 
@@ -48,36 +43,11 @@
 
 ## 二、配置分层设计（先理解，再动手）
 
-这是本环境与「把所有东西堆进 `.bashrc`」最大的区别。四层，各司其职：
-
-```
-~/.zshenv          每次 zsh 启动都读（含非交互）-> 只放函数定义，必须轻量
-   |
-   +-> ~/.shell_wslfn      Windows 互操作函数（explorer / cmd / reg / powershell ...）
-                             |    ^
-                             |    | 也被 shell_common 引用
-                             +--> export BASH_ENV=$HOME/.shell_wslfn
-                                  bash 没有 .zshenv 的对等物，这是非交互 bash
-                                  唯一的入口（`bash -c` / `#!/bin/bash` 脚本）
-~/.zshrc  --+                     |
-            +--> ~/.shell_common --+   环境变量、PATH、代理、输入法、keyring
-~/.bashrc --+                          （bash 与 zsh 的唯一真相来源）
-```
-
-### 三条硬规则
-
-1. **只有两边都合法的语句才能进 `~/.shell_common`。**
-   - oh-my-zsh / `ZSH_THEME` / `PROMPT` / `zstyle` -> 只能进 `~/.zshrc`
-   - `PS1` / `shopt` / `HISTCONTROL` / bash-completion -> 只能进 `~/.bashrc`
-   - `${PWD,,}` 是 bash 专有、`${PWD:l}` 是 zsh 专有，共用文件里一律改用 `tr` 转小写
-
-2. **`conda init` 块绝不共用。** 两个 shell 的 hook 不同（`shell.zsh` vs `shell.bash`），必须各写各的。
-
-3. **用函数，不要用 alias。**
-   非交互 shell **默认不展开 alias**（bash 和 zsh 都一样）。这意味着 `alias cmd=...` 对脚本、cron、AI Agent 全部无效。函数则在任何模式下都有效。
-   这也是 `~/.zshenv` 存在的唯一理由——它是非交互 zsh 会读的**唯一**启动文件。
-
-> **为什么值得较真**：`gh auth login` 会起子 shell 调浏览器，alias 不传递，授权页面永远打不开。详见 [`../../git-github/README.md`](../../git-github/README.md) 第二节。
+`~/.zshenv` → `~/.shell_wslfn` → `~/.shell_common` ← `~/.zshrc` / `~/.bashrc` 四层，
+以及三条硬规则（共用文件只放两边都合法的语句、`conda init` 不共用、**用函数不用 alias**），
+都写在 [`../../shell/README.md`](../../shell/README.md)。动手前先读那一页：
+非交互 shell（脚本、AI Agent）不展开 alias、bash 没有 `.zshenv` 的对等物，
+这两件事决定了后面所有步骤为什么这样写。
 
 ---
 
@@ -242,6 +212,10 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/too
 git clone https://github.com/zsh-users/zsh-autosuggestions \
   "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions"
 
+# zsh-syntax-highlighting 插件（必须放在插件列表最后位）
+git clone https://github.com/zsh-users/zsh-syntax-highlighting \
+  "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting"
+
 # 设为默认 shell
 chsh -s "$(which zsh)"
 ```
@@ -250,20 +224,22 @@ chsh -s "$(which zsh)"
 
 ### 步骤 4：部署 shell 配置（核心步骤）
 
+原件在 [`../../shell/files/`](../../shell/files/)（与原生 Linux 桌面共用）：
+
 ```bash
-cd <本仓库>/wsl/setup
+cd <本仓库>/shell/files
 
 # 先备份现有配置
 mkdir -p ~/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)
 cp ~/.zshrc ~/.bashrc ~/.profile ~/.dotfiles-backup/*/ 2>/dev/null || true
 
 # 部署四层
-cp files/shell_common ~/.shell_common
-cp files/shell_wslfn  ~/.shell_wslfn
-cp files/zshenv       ~/.zshenv
-cp files/zshrc        ~/.zshrc
-cp files/bashrc       ~/.bashrc
-cp files/profile      ~/.profile
+cp shell_common ~/.shell_common
+cp shell_wslfn  ~/.shell_wslfn
+cp zshenv       ~/.zshenv
+cp zshrc        ~/.zshrc
+cp bashrc       ~/.bashrc
+cp profile      ~/.profile
 ```
 
 **部署后必须按本机情况调整 `~/.shell_common`：**
@@ -296,9 +272,8 @@ exec zsh
 nvm install --lts          # 参考环境为 v24.21.0
 npm i -g npm@latest
 
-# pnpm（PNPM_HOME 已在 shell_common 中定义，推荐独立脚本或 npm 安装，避免使用 corepack）
+# pnpm（PNPM_HOME 已在 shell_common 中定义，直接使用官方独立脚本安装最新版 pnpm 12 二进制）
 curl -fsSL https://get.pnpm.io/install.sh | sh -
-# 或: npm install -g pnpm
 
 # uv（Python 包管理与隔离，全局固定 3.12）
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -313,7 +288,7 @@ mkdir -p ~/.config/uv && echo "3.12" > ~/.config/uv/.python-version
 
 fnm 用 Rust 写，确实更快，但快得有限：实测 zsh 启动开销 nvm +75ms vs fnm +15ms，切换版本 180ms vs 12ms。**每开一个 shell 省 70ms**，不是网上说的"快一个数量级"。
 
-真正的否决理由是架构冲突：**fnm 依赖 shell hook 激活（`--use-on-cd`），生成非交互 shell 的工具会错过它，然后静默回退到另一个 Node**。这正是本配置第二节"三条硬规则"第 3 条要绕开的那类坑——`~/.zshenv` 存在的唯一理由就是让非交互 shell 也能工作，全是为了 AI Agent。换 fnm 等于把这个坑原样搬回来。
+真正的否决理由是架构冲突：**fnm 依赖 shell hook 激活（`--use-on-cd`），生成非交互 shell 的工具会错过它，然后静默回退到另一个 Node**。这正是 [`shell/`](../../shell/README.md) "三条硬规则"第 3 条要绕开的那类坑——`~/.zshenv` 存在的唯一理由就是让非交互 shell 也能工作，全是为了 AI Agent。换 fnm 等于把这个坑原样搬回来。
 
 **但别以为现状就没有这个问题——它只是轻一些。**
 
@@ -333,13 +308,11 @@ env -i HOME=$HOME TERM=xterm /usr/bin/zsh -c  'command -v node'   # 【无输出
 > 提到 `~/.zshenv`，但那会让 `~/.zshenv` 变重，与第二节"必须轻量"的约束冲突。
 > 在定下来之前，**别在文档里声称非交互 shell 能拿到 node**——之前这里就是这么写错的。
 
-**pnpm 留在 11.x，暂不升 12。**
+**默认直接采用最新版 pnpm 12 二进制。**
 
-pnpm 12 是 Rust 重写版，2026-08-26 stable。不升的判据不是"才发布几周"，而是**发布节奏本身**：官方还在用 "catch-up" 描述 12.2/12.3 的内容（把 pnpm 11 有而 Rust CLI 没有的功能补回来），到 9 月中旬仍在周更。等 release notes 里不再出现 catch-up、节奏降到月级再说。
+使用官方独立脚本安装最新版 pnpm 12（Rust 重写版），独立二进制落地于 `$PNPM_HOME/bin/pnpm`。
 
-> **注意默认值已经变了**：`pnpm self-update` 的默认目标已从 11 改成 12。想留在 11 必须**显式钉住**，项目里用 `package.json` 的 `packageManager` 字段，别裸跑 `self-update`。
->
-> 另外 12 有个行为破坏：所有改全局安装的命令在 sudo 下直接报 `ERR_PNPM_SUDO_NOT_SUPPORTED`，以前是静默改 root 家目录。
+> **注意 12 的行为变动**：所有改全局安装的命令在 sudo 下直接报 `ERR_PNPM_SUDO_NOT_SUPPORTED`（以前是静默改 root 家目录），日常全局操作无需且不应加 sudo。日常升级直接执行 `pnpm self-update`。
 
 ---
 
@@ -370,8 +343,8 @@ git config --global http.version HTTP/1.1     # 代理环境下规避 GnuTLS 握
 
 | 组件 | 文档 |
 | :--- | :--- |
-| Windows Terminal 配置 | [`../zsh/`](../zsh/) |
-| Docker | [`../../tools/docker/docker.md`](../../tools/docker/docker.md) |
+| Windows Terminal 配置 | [`../../windows/terminal/`](../../windows/terminal/) |
+| Docker | [`../../tools/docker/`](../../tools/docker/) |
 | PowerShell 7 | [`../../windows/powershell/`](../../windows/powershell/) |
 | pnpm/npm 磁盘清理 | [`../storage/pnpm-npm-cleanup-20260920.md`](../storage/pnpm-npm-cleanup-20260920.md) |
 

@@ -439,7 +439,7 @@ bx web "site:docs.rs axum" --count 5 | jq -r '.web.results[].url'
 - Claude Code 侧的 skill：`~/.claude/skills/bx/`，结构为 `SKILL.md`（纯 ASCII 主版）+ `references/zh.md`（中文对照，不被 harness 加载）。⚠️ v1 写的 `SKILL.zh.md` 布局已废弃。
 - Antigravity 侧：`~/.gemini/config/skills/bx/`，全局约定在 `~/.gemini/config/AGENTS.md`。
 
-**两边的全局约定都内联了 5 条配方**（2026-09-20 起，见 `agent/claude-code/CLAUDE.md` 与
+**两边的全局约定都内联了 5 条配方**（2026-09-20 起，见 `agent/claude-code/claude-global.md` 与
 `agent/antigravity/agents-brave-uv.md`），常规搜索不必再先读 skill；skill 只留给 `answers`、
 图片/视频/地点、`--goggles`/`--extra`/`--offset`、配置与代理故障、以及任何非零退出码。
 两份约定的差别只有一处：Claude Code 侧 `bx` 与内置 WebSearch 分工（见[第 11 节](#11-与内置-websearch-的分工)），

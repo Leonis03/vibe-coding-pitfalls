@@ -48,12 +48,15 @@ cd "$(dirname "$0")/.." || exit 2
 # .privacy-names holds the names by design; scanning it would fail every run.
 # It is gitignored, so it is never what gets published.
 #
-# tmp/ is the scratch area (gitignored, see README "约定"): raw command output,
+# In a git worktree .git is a file (a gitdir pointer holding an absolute path),
+# not a directory, so it needs --exclude as well as --exclude-dir.
+#
+# tmp/ is the scratch area (gitignored, see conventions.md): raw command output,
 # backups taken before an overwrite, half-finished edits. It is EXPECTED to
 # hold real paths and account names -- that is the point of having somewhere to
 # put them. Scanning it would fail the run over files that can never be
 # committed and never reach `git archive`.
-EXCLUDE=(--exclude-dir=.git --exclude-dir=node_modules --exclude-dir=tmp --exclude=.privacy-names)
+EXCLUDE=(--exclude-dir=.git --exclude=.git --exclude-dir=node_modules --exclude-dir=tmp --exclude=.privacy-names)
 fail=0
 
 NAMES_FILE=tools/.privacy-names

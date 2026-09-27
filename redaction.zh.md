@@ -39,7 +39,7 @@
 两个方向各自的流水线：
 
 ```
-【发布方向】 工作副本 --> 公开仓库
+【发布方向】 origin/main --> 两个公开仓库  (tools/publish.sh)
        |
        |  被跟踪的字节里只有 (1)(2)(3) 三种形态，没有真名
        v
@@ -47,7 +47,8 @@
   读 tools/.privacy-names   跳过 tmp/   只覆盖已知形态: 跑通 != 安全
        | pass
        v
-  git archive HEAD | tar -x -C ../my-config-public
+  git archive origin/main | tar -x   整棵树 -> vibe-coding-pitfalls
+                                     agent/skills -> vibe-coding-pitfalls-skills
        +-- 不用 cp -r: 它会把 gitignore 挡住的私有文件一并拷走
 
 【部署方向】 仓库 --> 本机(Fedora / Ubuntu / 租来的 GPU 机)

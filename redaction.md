@@ -45,7 +45,7 @@ and the test is **whether a shell will expand it**, not what kind of file it app
 The two directions:
 
 ```
-[PUBLISHING]  working copy --> public repo
+[PUBLISHING]  origin/main --> two public repos  (tools/publish.sh)
        |
        |  tracked bytes contain only forms (1)(2)(3) -- never a real name
        v
@@ -54,7 +54,8 @@ The two directions:
   (gitignored)           tmp/. Covers known shapes only: passing != safe
        | pass
        v
-  git archive HEAD | tar -x -C ../my-config-public
+  git archive origin/main | tar -x   whole tree -> vibe-coding-pitfalls
+                                     agent/skills -> vibe-coding-pitfalls-skills
        +-- not cp -r: that copies the local private files gitignore was hiding
 
 [DEPLOYING]  repo --> this machine (Fedora / Ubuntu / a rented GPU box)

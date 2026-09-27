@@ -1,4 +1,15 @@
-# Brave Search 项目说明
+# Brave Search
+
+`bx` CLI 与 Brave Search MCP 的接入说明。skill 本体在 [`../skills/bx/`](../skills/bx/)。
+
+| 文件 | 内容 |
+| :--- | :--- |
+| 本页 | 搜索路由的现状：先 `bx`，MCP 作退路，以及使用规则 |
+| [`bx-cli.md`](bx-cli.md) | `bx` 安装、代理 wrapper、jq 配方、与内置 WebSearch 的分工 |
+| [`brave-search-mcp.md`](brave-search-mcp.md) | MCP 方案（第三方 API 网关、无 shell 的环境） |
+
+> 本页原先是一份项目级 `CLAUDE.md`，改名为 README 是为了不被 Claude Code 当作指令自动加载，
+> 见 [`../claude-code/`](../claude-code/)。下文「本机」指写作时的 WSL 机器。
 
 > **2026-09-20 更新**：本机的搜索路径已改为 **`bx` CLI 优先**，本文件原先「内置 WebSearch
 > 不可用、请用 MCP 工具」的前提**在 Claude Code 里不成立**（实测可用，见

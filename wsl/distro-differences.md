@@ -258,7 +258,7 @@ sudo chsh -s /usr/bin/zsh "$USER"
 
 两边文件名不同且互不存在。直接铺 Debian 血统的 `~/.bashrc` 会**静默**掐断 Fedora 这条链。
 补丁加在非交互早退守卫之后，**带守卫因此在 Ubuntu 上是无害空操作**，已直接并进
-[`setup/files/bashrc`](setup/files/bashrc)：
+[`shell/files/bashrc`](../shell/files/bashrc)：
 
 ```bash
 [ -f /etc/bashrc ] && . /etc/bashrc
@@ -268,10 +268,10 @@ sudo chsh -s /usr/bin/zsh "$USER"
 
 Fedora 的骨架自带 `~/.bash_profile`，而 bash 登录时**只读第一个存在的**
 `~/.bash_profile` → `~/.bash_login` → `~/.profile`。Ubuntu 没有 `~/.bash_profile`，所以
-`~/.profile` 生效；Fedora 有，所以 `cp files/profile ~/.profile` **铺了也不会被读**。
+`~/.profile` 生效；Fedora 有，所以 `cp shell/files/profile ~/.profile` **铺了也不会被读**。
 
 实际影响很小——Fedora 的 `~/.bashrc` 自己就把 `$HOME/.local/bin` 和 `$HOME/bin` 加进了 `PATH`，
-和 `files/profile` 想做的事重合。但**别误以为是 `~/.profile` 在起作用**，改它不会有任何效果。
+和 `shell/files/profile` 想做的事重合。但**别误以为是 `~/.profile` 在起作用**，改它不会有任何效果。
 
 **（3）`shell_common` 第 8 节会在每个交互 shell 里报错。** 这条交接文档也没提到。
 
@@ -282,19 +282,11 @@ Fedora 的骨架自带 `~/.bash_profile`，而 bash 登录时**只读第一个�
 
 原文只给 keyring 那行加了 `2>/dev/null`，`dbus-launch` 那行**没有任何保护**，于是每开一个
 交互 shell 就吐一次 `dbus-launch: command not found`。已改成 `command -v` 守卫并并进
-[`setup/files/shell_common`](setup/files/shell_common)，在两个发行版上都正确。
+[`shell/files/shell_common`](../shell/files/shell_common)，在两个发行版上都正确。
 
-### 4.6 步骤 5：corepack 默认版本已经漂走
+### 4.6 步骤 5：采用官方独立脚本安装 pnpm 12 二进制
 
-`corepack enable pnpm` 现在装的是 **pnpm 12.4.2**，**直接违反**
-[`setup/README.md`](setup/README.md) 步骤 5「pnpm 留在 11.x」的决定。
-这不是 Fedora 差异，是上游默认值变了——`latest` 已指向 12。
-
-```bash
-corepack prepare pnpm@11.27.0 --activate    # 必须显式钉，否则拿到 12.x
-```
-
-注意 `11.27.0` 挂在 `next-11` 标签上，`latest-11` 停在 `11.26.0`。
+项目默认直接采用官方独立安装脚本 `curl -fsSL https://get.pnpm.io/install.sh | sh -` 安装最新版 pnpm 12 二进制，避开不同环境自带包管理器和旧版本差异。独立二进制自动部署在 `$PNPM_HOME/bin/pnpm`。
 
 ### 4.7 步骤 6：wslu 缺失，且 `BROWSER` 不能是 shell 函数
 
@@ -409,7 +401,7 @@ if [ -n "${XDG_RUNTIME_DIR:-}" ] && [ -d "${XDG_RUNTIME_DIR:-}" ]; then
 fi
 ```
 
-**没有放进 `files/zshrc`**：它是「systemd user session 坏掉」的补丁，不是通用配置。
+**没有放进 `shell/files/zshrc`**：它是「systemd user session 坏掉」的补丁，不是通用配置。
 Ubuntu 上 `systemd --user` 正常，这段虽然无害但纯属多余。需要的人从这里抄。
 
 #### 还要补输入法本身

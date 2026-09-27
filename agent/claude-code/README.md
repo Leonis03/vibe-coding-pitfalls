@@ -7,23 +7,29 @@
 | 仓库中的文件 | 部署到 | 同步于 | 说明 |
 | :--- | :--- | :--- | :--- |
 | `settings.json` | `~/.claude/settings.json` | 2026-09-20 | 模型、effort、插件、权限、statusLine 挂载点、agy 守卫钩子 |
-| `CLAUDE.md` | `~/.claude/CLAUDE.md` | 2026-09-20 | 全局约定（bx 搜索配方、uv/Python 规范、纯 ASCII 面、技能安装规则） |
-| `statusline-command.sh` | `~/.claude/statusline-command.sh` | 2026-09-20 | 状态栏渲染脚本，159 行，纯 bash + jq |
+| `claude-global.md` | `~/.claude/CLAUDE.md` | 2026-09-20 | 全局约定（bx 搜索配方、uv/Python 规范、纯 ASCII 面、技能安装规则） |
+| `statusline-command.sh` | `~/.claude/statusline-command.sh` | 2026-09-20 | 状态栏渲染脚本，纯 bash + jq |
+
+> **仓库里不叫 `CLAUDE.md`，是故意的。** Claude Code 读到某个子目录里的文件时，会把该目录的
+> `CLAUDE.md` 当作项目指令自动加载——原件若用这个名字，agent 一改这个目录就会把全局约定
+> （或还没发布的草稿）再注入一遍。和 [`../antigravity/`](../antigravity/) 用 `agents-brave-uv.md`
+> 存放 `AGENTS.md` 原件是同一个做法。
 
 ```bash
-cp settings.json CLAUDE.md statusline-command.sh ~/.claude/
+cp settings.json statusline-command.sh ~/.claude/
+cp claude-global.md ~/.claude/CLAUDE.md
 ```
 
-这三个文件与本机**逐字节一致**（不含任何需要脱敏的路径或账户名，所以 `cp` 即可，
+这三个文件与部署位**逐字节一致**（不含任何需要脱敏的路径或账户名，所以 `cp` 即可，
 不像 [`../skills/`](../skills/) 需要渲染占位符）。核对：
 
 ```bash
-for f in settings.json CLAUDE.md statusline-command.sh; do
-  cmp -s "$f" ~/.claude/"$f" && echo "ok   $f" || echo "DIFF $f"
-done
+cmp -s settings.json         ~/.claude/settings.json         && echo "ok   settings.json"         || echo "DIFF settings.json"
+cmp -s claude-global.md      ~/.claude/CLAUDE.md             && echo "ok   CLAUDE.md"             || echo "DIFF CLAUDE.md"
+cmp -s statusline-command.sh ~/.claude/statusline-command.sh && echo "ok   statusline-command.sh" || echo "DIFF statusline-command.sh"
 ```
 
-三个文件均为**纯 ASCII**，且不含任何凭据。这不只是这三个文件的要求——CLAUDE.md 里
+三个文件均为**纯 ASCII**，且不含任何凭据。这不只是这三个文件的要求——`claude-global.md` 里
 「Keep These Surfaces Pure ASCII」一节把它定成了约定：目录名、文件名、系统与工具的配置文件
 （含注释）、以及每个 skill 的 frontmatter（尤其 `description`）都只用 ASCII，正文文档才用中文。
 
@@ -107,7 +113,7 @@ Codex 的对应命令：`codex resume`（当前目录）、`codex resume --all`�
 [cc-switch](https://github.com/farion1231/cc-switch) 在管这件事。
 
 > 本仓库的 `settings.json` **不含** `env` 段，也就不含任何密钥。要用中转服务的话，把密钥放
-> `~/.shell_secrets`（见 [`../../wsl/setup/`](../../wsl/setup/)），别写进这个文件——它是被版本
+> `~/.shell_secrets`（见 [`../../shell/`](../../shell/)），别写进这个文件——它是被版本
 > 控制的。
 
 ---
@@ -115,5 +121,5 @@ Codex 的对应命令：`codex resume`（当前目录）、`codex resume --all`�
 ## 相关
 
 - 技能：[`../skills/`](../skills/)
-- Shell / WSL 环境：[`../../wsl/setup/`](../../wsl/setup/)
+- Shell 配置：[`../../shell/`](../../shell/) · WSL 环境：[`../../wsl/setup/`](../../wsl/setup/)
 - Git 与 gh：[`../../git-github/`](../../git-github/)

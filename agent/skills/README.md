@@ -61,6 +61,13 @@ bash ../../tools/sync-skills.sh deploy bx  # 只处理一个
 
 所以顺序是：**能发现就发现 → 发现不了但 shell 能展开就用 `$HOME` → 都不行才用占位符**。
 
+## 公开发布
+
+除第三方的 `find-skills` 外，全部 skill 还会由 [`../../tools/publish.sh`](../../tools/publish.sh) 导出到公开仓库
+[vibe-coding-pitfalls-skills](https://github.com/Leonis03/vibe-coding-pitfalls-skills) 的 `skills/<name>/`，
+那边的 README 按各 skill 的 frontmatter 自动生成——所以 `description` 的第一句要能单独读懂。
+导出的是脱敏后的仓库原样，占位符不渲染。
+
 ## 装在哪
 
 | skill | `.claude` | `.gemini` |
@@ -74,7 +81,7 @@ bash ../../tools/sync-skills.sh deploy bx  # 只处理一个
 负责拦下裸 `agy -p` 与 agent 自行 `grant`。只装 skill 不配钩子，同意闸门就只剩文档约束。
 
 新装一个 skill 是**手动动作**（两边集合本就不同，脚本不会替你决定）；装好之后由
-`sync-skills.sh` 维持一致。安装一律 `cp`，不要 `ln -s`——见根目录 README 的「约定」。
+`sync-skills.sh` 维持一致。安装一律 `cp`，不要 `ln -s`——见 [`../../conventions.zh.md`](../../conventions.zh.md)。
 
 ## 约定
 

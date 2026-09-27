@@ -1,0 +1,10 @@
+[Nemo Action]
+Name=Open in Ghostty
+Name[zh_CN]=在 Ghostty 中打开
+Comment=Open Ghostty terminal in the selected folder
+Comment[zh_CN]=在选中的文件夹中打开 Ghostty 终端
+Exec=ghostty --working-directory=%F
+Icon-Name=com.mitchellh.ghostty
+Selection=s
+Extensions=dir;
+Quote=double

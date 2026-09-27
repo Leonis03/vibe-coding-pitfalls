@@ -1,6 +1,6 @@
 # Python 踩坑记录
 
-本机环境约定（uv、`PYTHONUNBUFFERED`、不碰系统 `python3`）见 [`../../agent/claude-code/CLAUDE.md`](../../agent/claude-code/CLAUDE.md)。
+本机环境约定（uv、`PYTHONUNBUFFERED`、不碰系统 `python3`）见 [`../../agent/claude-code/claude-global.md`](../../agent/claude-code/claude-global.md)。
 本文只记**踩过的具体坑**，每条都在本机实测过，附验证方法。
 
 ---
@@ -30,7 +30,7 @@ from urllib.request import proxy_bypass_environment as pbe
 
 ### 做法
 
-**① shell 里把主机名写全，别图省事用通配。** 本机 [`../../wsl/setup/files/shell_common`](../../wsl/setup/files/shell_common) 第 5 节已经这么做了，并在那里留了注释。
+**① shell 里把主机名写全，别图省事用通配。** 本机 [`../../shell/files/shell_common`](../../shell/files/shell_common) 第 5 节已经这么做了，并在那里留了注释。
 
 **② 写访问本机服务的代码时，显式绕开代理，不依赖环境变量：**
 
@@ -137,6 +137,6 @@ Python 3.12.14
 
 ## 相关
 
-- [`../../agent/claude-code/CLAUDE.md`](../../agent/claude-code/CLAUDE.md) —— uv 规范、`PYTHONUNBUFFERED` 与块缓冲
+- [`../../agent/claude-code/claude-global.md`](../../agent/claude-code/claude-global.md) —— uv 规范、`PYTHONUNBUFFERED` 与块缓冲
 - [`../../wsl/setup/`](../../wsl/setup/) —— 代理环境变量在哪定义
 - [`../skills/wsl-cjk-font/`](../../agent/skills/wsl-cjk-font/) —— matplotlib / Pillow 的中文字体渲染
