@@ -1,6 +1,6 @@
 ---
 name: gpu-cuda-checks
-description: Verify that PyTorch CUDA work really runs on the GPU on any rented cloud box, and avoid the silent-CPU-fallback trap. Use when launching or debugging training/inference over SSH -- covers conda activation, a smoke test that proves real GPU compute (is_available() does not), and per-generation gotchas. The Tesla P4 (sm_61, Pascal) is the fully measured case: legacy AMP API on torch 2.2, and why fp16 saves memory but not time without Tensor Cores.
+description: Verify that PyTorch CUDA work really runs on the GPU on any rented cloud box, and avoid the silent-CPU-fallback trap. Use when launching or debugging training/inference over SSH -- covers conda activation, a smoke test that proves real GPU compute (is_available() does not), and per-generation gotchas. The Tesla P4 (sm_61, Pascal) is the fully measured case -- legacy AMP API on torch 2.2, and why fp16 saves memory but not time without Tensor Cores.
 allowed-tools: Bash Read
 argument-hint: "[ssh -p PORT user@host]"
 arguments: [ssh]

@@ -86,6 +86,29 @@ else
 fi
 rm -f "$STAGE.gate"
 
+# --- skill frontmatter --------------------------------------------------------
+# A plain (unquoted) YAML scalar may not contain ": " or " #". Claude Code's
+# loader tolerates it; strict parsers such as `npx skills` drop the skill
+# without a word -- deepln-setup and gpu-cuda-checks both vanished that way.
+bad_frontmatter() {
+  awk '
+    /^---[[:space:]]*$/ { if (++c == 2) exit; next }
+    c == 1 && /^[A-Za-z_-]+:[ \t]/ {
+      v = $0; sub(/^[A-Za-z_-]+:[ \t]*/, "", v)
+      if (v ~ /^["\047>|]/) next
+      if (v ~ /: / || v ~ / #/) { print FILENAME; bad = 1 }
+    }
+    END { exit bad }' "$1"
+}
+fm_bad=0
+for f in "$STAGE"/agent/skills/*/SKILL.md; do
+  bad_frontmatter "$f" > /dev/null || { echo "invalid YAML frontmatter (unquoted ': ' or ' #'): ${f#"$STAGE"/}"; fm_bad=1; }
+done
+if [ "$fm_bad" -eq 1 ]; then
+  echo "nothing written -- use ' -- ' instead of ': ', or quote the value"
+  exit 1
+fi
+
 wipe() { find "$1" -mindepth 1 -maxdepth 1 -not -name .git -exec rm -rf {} +; }
 
 # --- whole tree -------------------------------------------------------------

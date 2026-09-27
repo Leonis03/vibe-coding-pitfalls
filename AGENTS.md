@@ -65,6 +65,7 @@ Every top-level directory except `tmp/` has a `README.md` index. Read it before 
 ## Rules that fail silently when broken
 
 - **ASCII only** in file and directory names, config files (comments included), skill YAML frontmatter, and this file.
+- An unquoted skill `description` must not contain `: ` or ` #` (write ` -- `): Claude Code loads it anyway, strict parsers such as `npx skills` drop the skill silently.
 - Markdown filenames are lowercase kebab-case; point-in-time records end in `-YYYYMMDD`.
 - **No `AGENTS.md` or `CLAUDE.md` below the root**: harnesses load them as instructions. Originals get other names (see Map).
 - **No real identifiers** in tracked files: usernames, hostnames, IPs, ports, emails, tokens, session IDs.

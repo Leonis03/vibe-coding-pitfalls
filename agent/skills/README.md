@@ -87,4 +87,7 @@ bash ../../tools/sync-skills.sh deploy bx  # 只处理一个
 
 - **frontmatter 纯 ASCII**，尤其 `description`：它每个会话都加载，并参与触发匹配。
   正文（frontmatter 以下）可以中文。
+- **`description` 不加引号时，里面不能出现 `: ` 或 ` #`**，要用 ` -- ` 代替冒号，或者整体加引号 / 用 `>-` 折叠。
+  这在 YAML 里不合法：Claude Code 的加载器能容忍，照样加载；但 `npx skills` 这类严格解析器会**不报错地跳过整个 skill**。
+  `deepln-setup`、`gpu-cuda-checks` 就是这样在公开 skill 仓库里消失的。`tools/publish.sh` 导出前会检查这一条。
 - 带 `SKILL.zh.md` 的 skill，中文版是对照副本，**不被 harness 加载**，以英文主版为准。

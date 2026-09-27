@@ -138,6 +138,7 @@ Docker；[`tools/latex/`](tools/latex/)（VS Code LaTeX Workshop 工具链，以
 | **脱敏占位符借用了 `$HOME`** | 同一个记号既表示"待替换的家目录"，又表示真正的 shell 变量；一渲染就把 `set-deepln.sh` 里的 `$HOME` 硬编码成本机路径，脚本到了租来的 GPU 机上全错。判据应该是"会不会被 shell 展开"，不是文件类型 | [`agent/skills/README.md`](agent/skills/README.md) |
 | **DeepLN 实例之间走公网域名不通** | 在一台租用机上 `ssh`/`rsync` 另一台的 `<实例>.deepln.com:<端口>` 一直超时，两个方向都一样。集群内要走 pod 内网 IPv4（`hostname -I`）的 22 端口，配 `ssh -A` 借本地密钥，实测 145–204 MB/s，约为家里上行的 100 倍 | [`agent/skills/deepln-setup/`](agent/skills/deepln-setup/) 第 5.3 节 |
 | **DeepLN「保存数据」快照多一层 `data/`** | 按常见写法 `tar xvf - -C /data/coding` 解开，文件落到 `/data/coding/data/coding/...`：压缩包是整个 `/data`。在 `-C /` 后加一个空格，写成 `-C / data/coding`：只解项目目录、不套娃；不加 `data/coding` 解到 `/` 又会覆盖新实例自己的 alist 配置 | [`agent/skills/deepln-setup/`](agent/skills/deepln-setup/) 第 5.2 节 |
+| **skill 的 `description` 里有 `: `，严格解析器静默丢掉整个 skill** | Claude Code 里好好的，`npx skills add --list` 却少两个、不报错。不加引号的 YAML 值里 `: ` 不合法，Claude Code 宽松放行，严格解析器直接跳过。改成 ` -- ` 或加引号 | [`agent/skills/README.md`](agent/skills/README.md) 约定 |
 | **jq 路径写错静默出 0 行** | 对 `bx news` 用 `.web.results[]`，exit 0 无报错，看起来像"这话题没结果" | [`agent/brave-search/bx-cli.md`](agent/brave-search/bx-cli.md) 第 6 节 |
 | **搜索前置 skill 成了固定税** | CLAUDE.md 每会话常驻、skill 正文按需加载，把 2.2k 的 skill 设成 `bx` 前置，成本结构正好反了 | [`agent/claude-code/README.md`](agent/claude-code/README.md) |
 | **脱敏正则反复漏网** | 同一个值换种渲染方式（大小写、列对齐、另一条命令的输出格式、换语言的标签）就逃过检查，5 轮都栽在这 | [`tools/privacy-gate.sh`](tools/privacy-gate.sh) 头部注释 |
