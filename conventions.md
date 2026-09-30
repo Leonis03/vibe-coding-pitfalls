@@ -1,12 +1,29 @@
 # Conventions
 
-*English · [中文（正本 / canonical）](conventions.zh.md) · back to [README](README.md)*
+*English · [中文](conventions.zh.md) · back to [README](README.md)*
 
+- **Philosophy: The Agent as System Operator & Closed-Loop Distillation**:
+  Treat the Agent as a real-world system operator. Humans specify objectives in natural language, prompting the Agent to conduct vibe-driven exploration in live OS and development environments. Once an empirical solution works reliably, the exploration outcomes are distilled into verifiable, reproducible, and deployable Markdown, configurations, automation scripts, and Agent Skills, ensuring future agents never have to re-explore from scratch.
+
+  ```text
+  Natural language goal → Agent directly operates live system & executes commands → Observe symptoms → Pinpoint & empirically prove root causes → Working config/procedure → Solidify into configs, scripts, READMEs, skills, & verification checklists → Future agents reproduce via deterministic knowledge.
+
+  One-off Agent Exploration
+              ↓
+          Experience
+              ↓
+     Structured Conclusions
+        ↙     ↓      ↘
+    Config  README   Skill
+        ↘     ↓      ↙
+    Executable Specifications
+              ↓
+      Future Agent Reuse
+  ```
 - **These surfaces are pure ASCII only**: directory and file names; system and tool config
   files (**including their comments**, which are written in English); every skill's YAML
   frontmatter (especially `description`, which loads every session and participates in
-  trigger matching). Prose docs (`README.zh.md`, `references/*.md`, everything below a
-  skill's frontmatter) are in Chinese. Non-ASCII in the wrong place fails **silently and far
+  trigger matching). Non-ASCII in the wrong place fails **silently and far
   from its cause** -- across the WSL/Windows boundary, in archives, in shell and harness
   parsing.
 - **Markdown filenames are lowercase kebab-case**: `wsl-gui-and-ime.md` -- no capitals,
@@ -23,17 +40,12 @@
   subdirectory, `files/` holds deployable originals and everything else is documentation. An
   original used on more than one platform (the bash / zsh config) lives in a platform-neutral
   directory ([`shell/`](shell/)), not under one platform.
-- **Root-level docs are bilingual; subdirectory docs are not.** Every document at the root
-  comes as a pair -- `x.md` in English (what GitHub renders by default) and `x.zh.md` as the
-  canonical Chinese. Currently three pairs: `README`, `conventions`, `redaction`. Changes
-  land in the Chinese version first, then get synced to English -- the pitfall index is
-  compressed debugging conclusions, and those are worth getting exactly right in the author's
-  first language before translating. **Subdirectory docs are Chinese-only**, with skills as
-  the exception: they are read by agents, so both languages earn their keep. The root
-  [`AGENTS.md`](AGENTS.md) is another exception: it is the agent entry point, English and
-  pure ASCII only, and `CLAUDE.md` is the one line `@AGENTS.md` so Claude Code reads the same
-  file. **When the layout, a deploy target, or a "must change together" pair changes, update
-  `AGENTS.md` in the same commit** -- a stale map sends agents to the wrong files.
+- **Markdown files are split into human-facing and agent-facing (English first, Chinese direct translation)**:
+  - **For Agent reading & writing**: Written in the most comfortable, unambiguous, and context-efficient format for LLMs -- **English**.
+  - **For Human reading**: Chinese versions serve as human reference, produced via **direct translation** sufficient for human comprehension.
+  - **Eliminate the former "Chinese canonical first, then sync to English" requirement**: For all future edits and new documents, **always write the agent-facing English version first** (`x.md`), followed by a direct Chinese translation (`x.zh.md`). The deterministic specifications understood by agents form the core truth.
+  - Root documents (`README`, `conventions`, `redaction`) and Skills are maintained as bilingual pairs: the English version is the primary execution baseline for agents, while the Chinese version provides human reference. Subdirectory notes are primarily for humans; skills serve both. Root [`AGENTS.md`](AGENTS.md) is strictly English and pure ASCII.
+  - **When the layout, a deploy target, or a "must change together" pair changes, update `AGENTS.md` in the same commit** -- a stale map sends agents to the wrong files.
 - **The README is a landing page and a router**: header, start here, layout, pitfall index,
   license. Anything substantial that is not needed on every read moves to its own file, with
   one row in the "Start here" table pointing at it -- the same split skills use between
@@ -65,7 +77,7 @@
   the leak); they are read at run time from `tools/.privacy-names`, which is gitignored.
 - **Publish with `bash tools/publish.sh`, never a hand-rolled `cp -r`.** This repo is a
   **private primary plus two public snapshots**:
-  [`vibe-coding-pitfalls`](https://github.com/Leonis03/vibe-coding-pitfalls) gets the whole tree,
+  [`vibe-pitfalls-notes`](https://github.com/Leonis03/vibe-pitfalls-notes) gets the whole tree,
   [`vibe-coding-pitfalls-skills`](https://github.com/Leonis03/vibe-coding-pitfalls-skills) gets
   only the skills (`agent/skills/<name>/` -> `skills/<name>/`, without the third-party
   `find-skills`, plus a README the script generates from each skill's frontmatter). Each public

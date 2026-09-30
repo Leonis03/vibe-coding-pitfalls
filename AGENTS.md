@@ -9,12 +9,28 @@ One person's dev-environment config, agent skills, and debugging notes, across s
 - Android (Termux root chroot, Honor tablet Linux Lab) -- covered only by skills
 - rented cloud GPU boxes (DeepLN) -- covered only by skills
 
+This repo treats the AI agent as a **system operator**. Humans define goals in natural language,
+prompting the agent to conduct empirical, vibe-driven exploration in real environments. Once an
+operation succeeds, findings are solidified into verifiable, reproducible Markdown, configs,
+scripts, and skills so future agents never have to re-explore from scratch:
+
+```text
+Natural language goal -> Agent directly operates live system -> Observe symptoms ->
+Empirically prove root causes -> Working config/solution -> Solidify into configs,
+scripts, READMEs, skills, & checklists -> Future agents reproduce via deterministic knowledge.
+
+One-off Agent Exploration -> Experience -> Structured Conclusions (Config/README/Skill)
+-> Executable Specifications -> Future Agent Reuse
+```
+
+Markdown is split into **agent-facing** (written in English first, the format agents process best)
+and **human-facing** (direct Chinese translations for human reference).
+
 Two kinds of content: **deployable originals** (config files copied to a live location) and
-**docs** (conclusions from debugging). Prose is Chinese; `README.zh.md` is the canonical README.
-This is the private primary repo (`vibe-coding-pitfalls-private`). `tools/publish.sh` exports
-`origin/main` into two public repos: `vibe-coding-pitfalls` (the whole tree) and
-`vibe-coding-pitfalls-skills` (the skills, minus the vendored `find-skills`). So everything
-tracked must be publishable.
+**docs** (conclusions from debugging). This is the private primary repo
+(`vibe-pitfalls-notes-private`). `tools/publish.sh` exports `origin/main` into two public repos:
+`vibe-pitfalls-notes` (the whole tree) and `vibe-coding-pitfalls-skills` (the skills, minus the
+vendored `find-skills`). So everything tracked must be publishable.
 
 ## Map
 
@@ -49,14 +65,14 @@ Every top-level directory except `tmp/` has a `README.md` index. Read it before 
 | change Claude Code settings, global rules, statusline | `agent/claude-code/*` | keep byte-identical to the live copy; `agent/claude-code/README.md` if a key's rationale changes |
 | change Antigravity global rules | `agent/antigravity/agents-brave-uv.md` | not `agents-brave-uv-desktop.md` (another environment) |
 | add or change a skill | `agent/skills/<name>/SKILL.md`, `scripts/`, `references/` | see "must change together"; then `bash tools/sync-skills.sh` (check) / `deploy <name>` |
-| record a new pitfall | the doc of the area it belongs to | one row in `README.zh.md` pitfall index first, then the same row in `README.md` |
+| record a new pitfall | the doc of the area it belongs to | one row in `README.md` pitfall index first, then sync direct translation to `README.zh.md` |
 | add notes on git, Python, SSH, Docker, LaTeX | `git-github/`, `tools/python/`, `tools/remote-ssh.md`, `tools/docker/`, `tools/latex/` | -- |
 | move, rename, or add a directory | the files (`git mv`) | `git grep` the old path and fix every link; the directory README; both root READMEs; this file |
 | publish to the public repos | nothing -- run `bash tools/publish.sh <public clone> <skills clone>` | only after the change is merged to `main`; the user commits and pushes each clone, or explicitly asks you to. Public commit messages carry **no AI `Co-Authored-By` trailer**, whatever your harness defaults to |
 
 ## Must change together
 
-- `README.zh.md` <-> `README.md`, `conventions.zh.md` <-> `conventions.md`, `redaction.zh.md` <-> `redaction.md`. Chinese first.
+- `README.md` <-> `README.zh.md`, `conventions.md` <-> `conventions.zh.md`, `redaction.md` <-> `redaction.zh.md`. English first (agent baseline), Chinese direct translation (human reference).
 - `SKILL.md` <-> `SKILL.zh.md` in `antigravity-cli`, `docx-to-md`, `pdf-to-md`, `linux-cjk-font`; `TROUBLESHOOTING.md` <-> `TROUBLESHOOTING.zh.md` in `antigravity-cli`. The harness loads the English file.
 - A new skill -> a row in both tables in `agent/skills/README.md`: the platform table (`if` / `only if`
   Windows / WSL / Linux / Android) and the per-machine install matrix. Install it with `mkdir` plus

@@ -1,10 +1,27 @@
 # 约定
 
-*[English](conventions.md) · 中文（正本）· 回到 [README](README.zh.md)*
+*[English](conventions.md) · 中文 · 回到 [README](README.zh.md)*
 
+- **项目理念：Agent 作为系统操作员的闭环沉淀**：
+  把 Agent 当成系统的真实操作员（System Operator），人类通过自然语言提出目标，驱动 Agent 在真实环境进行 vibe 式探索；一旦通过实证把方案跑通，就把探索结果沉淀为可验证、可复现、可部署的 Markdown、配置、脚本和 Skill，从而让下一次 Agent 不必重新探索。
+  
+  ```text
+  自然语言提出目标 → Agent 直接操作真实系统并执行命令 → 观察症状 → 定位并实证根因 → 得到可工作的配置/操作方案 → 把方案固化成配置、脚本、README、Skill 和验证方法 → 下次由 Agent 按这些确定性知识复现。
+
+  一次性的 Agent 探索
+          ↓
+         经验
+          ↓
+       结构化结论
+      ↙    ↓    ↘
+  Config README Skill
+      ↘    ↓    ↙
+       可执行规范
+          ↓
+    下一次 Agent 复用
+  ```
 - **这些地方只用纯 ASCII**：目录名与文件名、系统与工具的配置文件（**含其中的注释**，注释写英文）、
   每个 skill 的 YAML frontmatter（尤其 `description`，它每个会话都加载并参与触发匹配）。
-  正文文档（README、`references/*.md`、skill 的 frontmatter 以下部分）用中文。
   非 ASCII 跑到上面那几处，故障会**静默且远离原因**——跨 WSL/Windows 边界、打包、shell 与 harness 解析。
 - **Markdown 文件名一律小写 kebab-case**：`wsl-gui-and-ime.md`，不用大写、下划线或空格。
   取证记录与时点快照在名字末尾加 `-YYYYMMDD`（`etc-diff-analysis-20260330.md`、
@@ -17,14 +34,13 @@
 - **除 `tmp/` 外，每个顶层目录有一个 `README.md` 做索引**；目录里有 `files/` 的，`files/` 下是可直接部署的原件，
   其余是文档。原件若同时用于多个平台（如 bash / zsh 配置），放在平台无关的目录（[`shell/`](shell/)），
   不放在某个平台目录下。
-- **根级文档双语，子目录单语**：根目录每篇都是一对——`x.md` 英文（GitHub 默认渲染的那一份）、
-  `x.zh.md` 中文正本。目前是 `README` / `conventions` / `redaction` 三对。
-  改动先落在中文版，再同步英文版——踩坑索引的措辞是排查结论的浓缩，先用母语写准再翻译。
-  **子目录的文档只有中文**，不配英文版；skill 是例外，因为它要被 agent 读，双语各有用处。
-  根目录的 [`AGENTS.md`](AGENTS.md) 也是例外：它是给 agent 的入口，只有英文、纯 ASCII；
-  `CLAUDE.md` 只有一行 `@AGENTS.md`，让 Claude Code 读到同一份。
-  **目录结构、部署位或「必须一起改的文件」变了，同一个提交里更新 `AGENTS.md`**——它过期了，
-  agent 就会按旧地图改错地方。
+- **Markdown 文件分为给人读的和给 Agent 读的（英文优先，中文直译）**：
+  - **给 Agent 读写的**：用 Agent 最舒服、理解最精准、上下文最明确的方式——**英文（English）**。
+  - **给人读的**：中文版作为人类参考对照，**使用直译**，人类能读懂即可。
+  - **废除「先写中文正本再写 English」的旧要求**：以后编辑或新增文档，**统一先写给 Agent 读的英文版**（`x.md`），中文版（`x.zh.md`）通过直译生成。
+  - 根目录文档双语配对（`README`、`conventions`、`redaction`），英文版是 Agent 执行的基准，中文版供人类理解。子目录常规取证与笔记主要供人类查阅；skill 则兼具两端，双语各有用处。根目录的 [`AGENTS.md`](AGENTS.md) 纯英文、纯 ASCII。
+  - **目录结构、部署位或「必须一起改的文件」变了，同一个提交里更新 `AGENTS.md`**——它过期了，
+    agent 就会按旧地图改错地方。
 - **README 只做落地页与路由**：头部、从哪开始、目录、踩坑索引、许可证。
   成体系又不是每次都要读的内容拆成独立文件，在「从哪开始」那张表里留一行指过去——
   和 skill 用 `SKILL.md` + `references/` 分流是同一套做法。
@@ -45,7 +61,7 @@
 - **发布前跑 `bash tools/privacy-gate.sh`**。它只覆盖已知形态，跑通不等于安全——`wsl/storage/forensics/` 是原始取证输出，必须人工读。
   账户名**不写在脚本里**（写进去，这个脚本自己就成了泄露源），运行时从 `tools/.privacy-names`（已 gitignore）读取。
 - **发布到公开仓库用 `bash tools/publish.sh`，不要手工 `cp -r`**。本仓库是**私有主仓 + 两个公开快照**：
-  [`vibe-coding-pitfalls`](https://github.com/Leonis03/vibe-coding-pitfalls) 是整棵树，
+  [`vibe-pitfalls-notes`](https://github.com/Leonis03/vibe-pitfalls-notes) 是整棵树，
   [`vibe-coding-pitfalls-skills`](https://github.com/Leonis03/vibe-coding-pitfalls-skills) 只有 skill
   （`agent/skills/<name>/` → `skills/<name>/`，不含第三方的 `find-skills`，README 由脚本按各 skill 的
   frontmatter 生成）。两个公开仓各自有 `.git`，本机各 clone 一份，目录名随意：

@@ -1,17 +1,48 @@
-# vibe-coding-pitfalls
+# vibe-pitfalls-notes
 
-*[English](README.md) · 中文（正本）*
+*[English](README.md) · 中文*
 
 给 AI 编程 agent 搭环境时踩过的坑。每条都写明症状、根因和实证方法——配置是鱼，排查的方法才是渔。
 内容来自一个人的几台机器，主力工具是 Claude Code 与 Antigravity CLI，网络走本地代理。
 skill 另有单独的仓库可直接安装：[vibe-coding-pitfalls-skills](https://github.com/Leonis03/vibe-coding-pitfalls-skills)。
+
+---
+
+## 项目理念：Agent 作为系统操作员的闭环沉淀
+
+把 Agent 当成真实的**系统操作员**，人类通过自然语言提出目标，驱动 Agent 在真实环境进行 vibe 式探索；一旦通过实证把方案跑通，就把探索结果沉淀为可验证、可复现、可部署的 Markdown、配置、脚本和 Skill，从而让下一次 Agent 不必重新探索。
+
+```text
+自然语言提出目标 → Agent 直接操作真实系统并执行命令 → 观察症状 → 定位并实证根因 → 得到可工作的配置/操作方案 → 把方案固化成配置、脚本、README、Skill 和验证方法 → 下次由 Agent 按这些确定性知识复现。
+
+一次性的 Agent 探索
+        ↓
+       经验
+        ↓
+     结构化结论
+    ↙    ↓    ↘
+Config README Skill
+    ↘    ↓    ↙
+     可执行规范
+        ↓
+  下一次 Agent 复用
+```
+
+### 文档受众与语言规范
+
+仓库内的 Markdown 文档严格按受众划分为两类：
+- **给 Agent 读写的**：使用对 Agent 最舒适、上下文最严谨、Token 效率最高的方式——**英文（English）**。
+- **给人读的**：中文版作为人类参考，**使用直译**，满足人类能读懂即可。
+- **统一以英文版为基准**：编辑或新增文档时，**一律先写给 Agent 读的英文版**，再直译生成中文版；废除旧有「先写中文正本」的流程。
+
+---
 
 | 环境 | 在哪 |
 | :--- | :--- |
 | Windows 11 + WSL2（Ubuntu 24.04 → Fedora 44 迁移中） | [`wsl/`](wsl/) · [`windows/`](windows/) |
 | 原生 Linux 桌面（Linux Mint 22） | [`linux-desktop/`](linux-desktop/) |
 | 上面两者共用的 bash / zsh 四层配置 | [`shell/`](shell/) |
-| Android（Termux root chroot、荣耀平板 Linux Lab） | [`agent/skills/`](agent/skills/) 下的 `android-chroot-debian` 等三个 skill |
+| Android（Termux root chroot、荣耀平板 Linux Lab） | [`agent/skills/`](agent/skills/) 下的 `android-chroot-debian` 等四个 skill |
 | 租用的云 GPU（DeepLN） | [`agent/skills/deepln-setup/`](agent/skills/deepln-setup/) · [`gpu-cuda-checks/`](agent/skills/gpu-cuda-checks/) |
 
 > **AI agent 请先读 [`AGENTS.md`](AGENTS.md)**：目录地图、「要做 X 改哪些文件」对照表、必须一起改的文件、提交前检查。
@@ -153,6 +184,8 @@ Docker；[`tools/latex/`](tools/latex/)（VS Code LaTeX Workshop 工具链，以
 | **Android Termux 报 `required file not found`** | 执行官方安装的 CLI 工具报文件未找到，但 `ls` 明明在；`readelf -l` 发现其 `PT_INTERP` 请求 `/lib/ld-linux-aarch64.so.1`，而 Android 原生使用 Bionic libc（`/system/bin/linker64`），内核找不到 glibc 解释器返回 ENOENT，必须用 chroot/glibc 容器 | [`agent/skills/android-chroot-debian/`](agent/skills/android-chroot-debian/) |
 | **热插拔移动硬盘在 chroot 隔离中失明** | 进入 Debian 容器后再插入移动硬盘，Android 正常识别但容器内 `/android/mnt/media_rw` 为空。`unshare -m` 与 `rprivate` 阻断了挂载传播，需通过 `nsenter -t 1 -m` 穿透宿主命名空间动态桥接挂载 | [`agent/skills/termux-debian-external-drive/`](agent/skills/termux-debian-external-drive/) |
 | **NTFS 权限伪造阻断 SSH 密钥认证** | 移动硬盘上私钥执行 `chmod 600` 虽返回 0 但底层 FUSE 驱动固化为 `770`，触发 OpenSSH 门禁拒连；必须用 `tar` 归档保留 POSIX 权限并在本地 Linux 文件系统解压 | [`agent/skills/termux-debian-external-drive/`](agent/skills/termux-debian-external-drive/) |
+| **Android Bionic Linker 命名空间断裂与 Magisk 桩覆写** | 在 Debian chroot 内直接调用宿主 `/system/bin/settings` 报 `cannot execute` 或动态链接器崩溃（`file offset for libutils.so >= file size: 0 >= 0`）。Magisk tmpfs 覆写了动态库且链接器缺少运行时拓扑，必须使用单维度 `nsenter -t 1 -m` 穿透宿主 Mount Namespace 执行 | [`agent/skills/android-miui-settings/`](agent/skills/android-miui-settings/) |
+| **MIUI 专有高刷投票覆盖 AOSP 设置** | 单纯修改 `system` 表的 `peak_refresh_rate` 无法锁定 120Hz，系统打字或静止时频繁掉帧。MIUI 框架在 `DisplayModeDirector` 插入了 `PRIORITY_MIUI_REFRESH_RATE` 专属投票，需联动设置 `secure miui_refresh_rate 120` 与 `system is_smart_fps 0` | [`agent/skills/android-miui-settings/`](agent/skills/android-miui-settings/) |
 | **桌面会话下 `chsh` 换 Shell 不即时生效** | 修改登录 Shell 后重启终端仍进入 Bash；`gnome-terminal-server` 后台长驻缓存登录 PAM 变量 | [`linux-desktop/`](linux-desktop/) 第 2.1 节 |
 | **Clash 桌面系统代理对 CLI 穿透失效** | 桌面浏览器能翻墙但终端直连超时；`bx` 遇 `socks5h` 报 exit 5 | [`linux-desktop/`](linux-desktop/) 第 2.2 节 |
 | **Linux Mint 22 换源脱靶** | 误按 Ubuntu deb822 规范改写导致 Mint 官方桌面套件仓库脱落 | [`linux-desktop/`](linux-desktop/) 第 2.3 节 |

@@ -1,6 +1,6 @@
-# vibe-coding-pitfalls
+# vibe-pitfalls-notes
 
-*English · [中文（正本 / canonical）](README.zh.md)*
+*English · [中文](README.zh.md)*
 
 Pitfalls met while setting up machines for AI coding agents -- each with its symptom, its root
 cause, and how that cause was proven. The configs are the fish; the debugging method is the
@@ -8,12 +8,43 @@ rod. It all comes from one person's several machines, driven mainly by Claude Co
 Antigravity CLI, with networking through a local proxy. The skills are also published on their
 own, ready to install: [vibe-coding-pitfalls-skills](https://github.com/Leonis03/vibe-coding-pitfalls-skills).
 
+---
+
+## Philosophy: The Agent as System Operator & Closed-Loop Distillation
+
+This project treats the AI agent as a real-world **system operator**. Humans define goals in natural language, prompting the agent to conduct empirical, vibe-driven exploration in live OS and development environments. Once an operational path succeeds, findings are solidified into verifiable, reproducible, and deployable Markdown, configs, scripts, and skills, ensuring future agents never have to re-explore from scratch.
+
+```text
+Natural language goal → Agent directly operates live system & executes commands → Observe symptoms → Pinpoint & empirically prove root causes → Working config/procedure → Solidify into configs, scripts, READMEs, skills, & checklists → Future agents reproduce via deterministic knowledge.
+
+One-off Agent Exploration
+            ↓
+        Experience
+            ↓
+   Structured Conclusions
+      ↙     ↓      ↘
+  Config  README   Skill
+      ↘     ↓      ↙
+  Executable Specifications
+            ↓
+    Future Agent Reuse
+```
+
+### Documentation Audience & Language Conventions
+
+Markdown files in this repository are strictly divided by audience:
+- **Agent-Facing**: Written in the format most natural, context-dense, and unambiguous for LLMs -- **English**.
+- **Human-Facing**: Chinese versions serve as human reference, produced via **direct translation** sufficient for human comprehension.
+- **English First**: When editing or authoring documentation, **always write the agent-facing English version first**, then directly translate it into Chinese. The former "Chinese canonical first" requirement is eliminated.
+
+---
+
 | Environment | Where |
 | :--- | :--- |
 | Windows 11 + WSL2 (Ubuntu 24.04, migrating to Fedora 44) | [`wsl/`](wsl/) · [`windows/`](windows/) |
 | Native Linux desktop (Linux Mint 22) | [`linux-desktop/`](linux-desktop/) |
 | The four-layer bash / zsh config both of the above share | [`shell/`](shell/) |
-| Android (Termux root chroot, Honor tablet Linux Lab) | the `android-chroot-debian` and two sibling skills under [`agent/skills/`](agent/skills/) |
+| Android (Termux root chroot, Honor tablet Linux Lab) | the `android-chroot-debian` and three sibling skills under [`agent/skills/`](agent/skills/) |
 | Rented cloud GPUs (DeepLN) | [`agent/skills/deepln-setup/`](agent/skills/deepln-setup/) · [`gpu-cuda-checks/`](agent/skills/gpu-cuda-checks/) |
 
 > **AI agents: read [`AGENTS.md`](AGENTS.md) first** -- the directory map, a "to do X, edit
@@ -178,6 +209,8 @@ Entries that took real time to diagnose and whose conclusion is not obvious.
 | **Android Termux reports `required file not found`** | Executing a freshly installed CLI binary fails with file not found even though `ls` confirms it exists. `readelf -l` reveals `PT_INTERP` requests `/lib/ld-linux-aarch64.so.1`, but Android runs Bionic libc (`/system/bin/linker64`); the kernel cannot find the glibc linker and returns ENOENT. A glibc chroot container is required | [`agent/skills/android-chroot-debian/`](agent/skills/android-chroot-debian/) |
 | **Hotplugged USB drives are invisible in chroot** | Connecting an external drive after starting the Debian container leaves `/android/mnt/media_rw` empty even though Android recognizes it. `unshare -m` and `rprivate` block mount propagation; bridge mounts dynamically via `nsenter -t 1 -m` | [`agent/skills/termux-debian-external-drive/`](agent/skills/termux-debian-external-drive/) |
 | **NTFS permission masking breaks SSH key authentication** | Running `chmod 600` on private keys stored directly on NTFS exits 0 but the underlying FUSE driver fixes modes to `770`, triggering OpenSSH protection blocks; store keys in `.tar` archives and unpack to native Linux storage | [`agent/skills/termux-debian-external-drive/`](agent/skills/termux-debian-external-drive/) |
+| **Android Bionic Linker namespace fracture and Magisk tmpfs stub collision** | Calling host `/system/bin/settings` inside Debian chroot fails with `cannot execute` or dynamic linker crash (`file offset for libutils.so >= file size: 0 >= 0`). Magisk tmpfs overrides libraries with 0-byte stubs and the linker lacks container runtime topology; execute via targeted Mount Namespace penetration (`nsenter -t 1 -m`) | [`agent/skills/android-miui-settings/`](agent/skills/android-miui-settings/) |
+| **MIUI proprietary refresh rate vote overrides AOSP settings** | Setting `system peak_refresh_rate` to 120Hz fails to lock high refresh rate; MIUI inserts a `PRIORITY_MIUI_REFRESH_RATE` vote in `DisplayModeDirector` that drops FPS when idling or typing. Link both `secure miui_refresh_rate 120` and `system is_smart_fps 0` | [`agent/skills/android-miui-settings/`](agent/skills/android-miui-settings/) |
 | **`chsh` does not take effect in desktop terminal** | Shell changed via `chsh` but terminal restarts still spawn Bash; `gnome-terminal-server` caches PAM variables across windows | [`linux-desktop/`](linux-desktop/) section 2.1 |
 | **Clash desktop proxy misses CLI traffic** | Browser proxies fine while CLI commands time out; `bx` hitting `socks5h` exits 5 | [`linux-desktop/`](linux-desktop/) section 2.2 |
 | **Linux Mint 22 mirror targeting mismatch** | Blindly editing `ubuntu.sources` drops Mint's official desktop package repositories | [`linux-desktop/`](linux-desktop/) section 2.3 |

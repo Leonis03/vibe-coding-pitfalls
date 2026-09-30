@@ -1,6 +1,6 @@
 # Skills
 
-20 个 skill，同时供 Claude Code（`~/.claude/skills/`）与 Antigravity（`~/.gemini/config/skills/`）使用，也可以装在 `~/.agents/skills/`。
+21 个 skill，同时供 Claude Code（`~/.claude/skills/`）与 Antigravity（`~/.gemini/config/skills/`）使用，也可以装在 `~/.agents/skills/`。
 两边装的集合不同（见下表），但凡是两边都有的，内容保持一致。
 
 ## 部署与核对：不能直接 cp
@@ -83,6 +83,7 @@ bash ../../tools/sync-skills.sh deploy bx  # 只处理一个
 | `compress-wsl-space` | ✅ | | | | **only if** Windows（装了 WSL2） | 在管理员 PowerShell 里跑 `Optimize-VHD`；WSL 里只做 `fstrim` |
 | `android-chroot-debian` | | | | ✅ | **only if** Android（root + Termux） | 在 Termux 的 root chroot 里运行，依赖 Android 的挂载点与 `unshare` |
 | `termux-debian-external-drive` | | | | ✅ | **only if** Android（root + Termux） | vold、`/mnt/media_rw`、`nsenter -t 1` |
+| `android-miui-settings` | | | | ✅ | **only if** Android（root + Termux） | 穿透 Android 宿主 Mount Namespace (`nsenter -t 1 -m`) 调取 `settings` 与 DoT 私人 DNS |
 | `honor-linuxlab` | | ✅ | ✅ | ✅ | **only if** 手边有荣耀平板 | 目标是平板里的 PRoot 容器；命令从电脑端用 `adb shell` 注入 |
 | `video-to-md` | ✅ | ✅ | ✅ | | **only if** Antigravity | 视频靠 agy 的 `view_file` 读；Claude Code 没有等价工具，所以只装 `.gemini` |
 | `linux-cjk-font` | | ✅ | ✅ | | **if** WSL / Linux | WSL 先找 `/mnt/c/Users/*/.../Fonts`；Linux 退回 `/usr/share/fonts`，要装 `fonts-noto-cjk` 或文泉驿 |
@@ -107,7 +108,7 @@ bash ../../tools/sync-skills.sh deploy bx  # 只处理一个
 | `antigravity-cli` · `bx` · `deepln-setup` · `find-skills` · `gpu-cuda-checks` · `honor-linuxlab` · `inspect-session` · `shuorenhua` · `trim-branch` | ✅ | ✅ | ✅ | ✅ |
 | `docx-to-md` · `download-bilibili` · `pdf-to-md` | — | ✅ | ✅ | ✅ |
 | `video-to-md` | — | ✅ | — | ✅ |
-| `android-chroot-debian` · `termux-debian-external-drive` · `wsl-windows-command` | ✅ | ✅ | — | — |
+| `android-chroot-debian` · `termux-debian-external-drive` · `android-miui-settings` · `wsl-windows-command` | ✅ | ✅ | — | — |
 | `linux-cjk-font` | — | ✅ | — | — |
 | `compress-wsl-space` | — | — | — | — |
 | `github-coauthor-scrub` | — | — | ✅ | ✅ |

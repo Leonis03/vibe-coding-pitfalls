@@ -1,6 +1,6 @@
 # Redaction and portability: how to write a value
 
-*English · [中文（正本 / canonical）](redaction.zh.md) · back to [README](README.md)*
+*English · [中文](redaction.zh.md) · back to [README](README.md)*
 
 This repo has to satisfy two things that look contradictory: **no real usernames in the
 tracked bytes**, and **every path still resolves on whatever machine it is deployed to**. The
@@ -54,7 +54,7 @@ The two directions:
   (gitignored)           tmp/. Covers known shapes only: passing != safe
        | pass
        v
-  git archive origin/main | tar -x   whole tree -> vibe-coding-pitfalls
+  git archive origin/main | tar -x   whole tree -> vibe-pitfalls-notes
                                      agent/skills -> vibe-coding-pitfalls-skills
        +-- not cp -r: that copies the local private files gitignore was hiding
 

@@ -4,7 +4,7 @@
 #   bash tools/publish.sh <public-clone> [<skills-clone>]
 #   bash tools/publish.sh --skip-gate <public-clone> [<skills-clone>]
 #
-#   <public-clone>  clone of Leonis03/vibe-coding-pitfalls. Receives the whole
+#   <public-clone>  clone of Leonis03/vibe-pitfalls-notes. Receives the whole
 #                   tree.
 #   <skills-clone>  clone of Leonis03/vibe-coding-pitfalls-skills. Receives
 #                   agent/skills/<name>/ as skills/<name>/ (vendored skills
@@ -174,7 +174,7 @@ if [ -n "$SKL" ]; then
 
 Agent skills for Claude Code and Antigravity (\`agy\`). Most of them encode a failure that
 had already cost real time, so the agent does not walk into it again. They are exported from the same source as
-[vibe-coding-pitfalls](https://github.com/Leonis03/vibe-coding-pitfalls), where the
+[vibe-pitfalls-notes](https://github.com/Leonis03/vibe-pitfalls-notes), where the
 pitfall index explains why each one exists; a few skills link to docs there.
 
 | Skill | What it is for |

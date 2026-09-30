@@ -1,6 +1,6 @@
 # 脱敏与跨设备：一个值该怎么写
 
-*[English](redaction.md) · 中文（正本）· 回到 [README](README.zh.md)*
+*[English](redaction.md) · 中文 · 回到 [README](README.zh.md)*
 
 仓库要同时满足两件看起来矛盾的事：**被跟踪的字节里没有真实用户名**，而**部署到任何一台机器上都能解析成真值**。做法是按「它在目标机器上怎么变成真值」把值分成三类——判据是**会不会被 shell 展开**，不是它出现在什么文件里。
 
@@ -47,7 +47,7 @@
   读 tools/.privacy-names   跳过 tmp/   只覆盖已知形态: 跑通 != 安全
        | pass
        v
-  git archive origin/main | tar -x   整棵树 -> vibe-coding-pitfalls
+  git archive origin/main | tar -x   整棵树 -> vibe-pitfalls-notes
                                      agent/skills -> vibe-coding-pitfalls-skills
        +-- 不用 cp -r: 它会把 gitignore 挡住的私有文件一并拷走
 
